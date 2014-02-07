@@ -354,14 +354,26 @@ var commands = exports.commands = {
 		if (!target) return false;
 		var targetRoom = Rooms.get(target) || Rooms.get(toId(target));
 		if (!targetRoom) {
-			if (target === 'lobby') return connection.sendTo(target, "|noinit|nonexistent|");
-			return connection.sendTo(target, "|noinit|nonexistent|The room '"+target+"' does not exist.");
+			return connection.sendTo(target, "|noinit|nonexistent|The room '" + target + "' does not exist.");
 		}
 		if (targetRoom.isPrivate && !user.named) {
-			return connection.sendTo(target, "|noinit|namerequired|You must have a name in order to join the room '"+target+"'.");
+			return connection.sendTo(target, "|noinit|namerequired|You must have a name in order to join the room '" + target + "'.");
 		}
 		if (!user.joinRoom(targetRoom || room, connection)) {
-			return connection.sendTo(target, "|noinit|joinfailed|The room '"+target+"' could not be joined.");
+			return connection.sendTo(target, "|noinit|joinfailed|The room '" + target + "' could not be joined.");
+		}
+		if (target.toLowerCase() == "lobby") {
+			return connection.sendTo('lobby','|html|<div class="infobox" style="border-color:blue"><center><b><u>Welcome to the <i>Voyage</i> Server!</u></b></center><br />' +
+			'<center>Hey there, new to Showdown? Use the <b>/faq</b> command, the <b>/intro</b> command also helps if you\'re new to Pokemon battling.</center><br /><br />' +
+			'<center>Well, what are you waiting for? Want a Room for your League? Contact an <b>Administrator (~)</b> and you\'ll get one!</center><br /><br />' +
+			'<center>So you\'ve come here because of Dun Deal? Oh, then do <b>/join dundealsplace</b> right away!</center><br /><br />' +
+			'<center>Have any suggestion for the Server? What are you waiting for, then? Do <b>/join suggestions</b> and be quick to drop your suggestion there.</center><br /><br />' +
+			'<center>Meet the Staff: <b>/stafflist</b>! And be sure to help us out on the Server in any way to get your name nominated there!</center>');
+		}
+		if (target.toLowerCase() === 'dundealsplace') {
+				return connection.sendTo('dundealsplace','|html|<div class="infobox" style="border-color:blue"><center><b><u>Welcome to <i>Dun Deal\'s Place</i>!</u></b></center><br />' +
+					'<center>The place where you find all the DDT and PU guys! For more information: <b>/ddphelp</b>!</center><br /><br />'
+					'<center>Meet the Room Staff: <b>/roomauth</b>. Be sure to listen to these guys and help other people to have your name there!</center>');
 		}
 	},
 
@@ -507,7 +519,7 @@ var commands = exports.commands = {
         if (voices.length > 0) {
             voices = voices.join(', ');
         }
-        connection.popup('Administrators: \n'+admins+'\nLeaders: \n'+leaders+'\nModerators: \n'+mods+'\nDrivers: \n'+drivers+'\nVoices: \n'+voices);
+        connection.popup('<b>Administrators:</b> \n'+admins+'\n<b>Leaders:</b> \n'+leaders+'\n<b>Moderators:</b> \n'+mods+'\n<b>Drivers:</b> \n'+drivers+'\n<b>Voices:</b> \n'+voices);
     },
 
 	leave: 'part',
