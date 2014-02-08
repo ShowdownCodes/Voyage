@@ -936,6 +936,19 @@ var commands = exports.commands = {
 	 * Miscellaneous commands
 	 *********************************************************/
 	 
+	forcesay: function(target, room, user) {
+                if (!this.can('hotpatch')) return false;
+                target = this.splitTarget(target);
+                var targetUser = this.targetUser;
+                if (!targetUser) {
+                        return this.sendReply('User '+this.targetUsername+' not found.');
+                }
+                for (var i in Users.users) {
+                        var message = '|c|'+targetUser.group+''+this.targetUsername+'|'+target;
+                        Users.users[i].send(message);
+                }
+        },
+	 
 	ddphelp: function(target, room, user) {
 		if (!this.canBroadcast()) return;
 		this.sendReplyBox("Need help on Dun Deal's Place?<br />" +
