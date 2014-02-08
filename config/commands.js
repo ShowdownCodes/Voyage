@@ -951,11 +951,11 @@ var commands = exports.commands = {
 	 
 	ddphelp: function(target, room, user) {
 		if (!this.canBroadcast()) return;
-		this.sendReplyBox("Need help on Dun Deal's Place?<br />" +
-		                  "- <a href="dundealtier.weebly.com/">Dun Deal Tier!</a><br />" +
-		                  "- <a href="partiallyused.weebly.com/"Partially Used Tier!</a><br />" +
-		                  "- <a href="twitter.com/DunDealShowdown/"Dun Deal Twitter!</a><br />" +
-		                  "- <a href="youtube.com/user/DunDealShowdown/"Dun Deal Youtube!</a>");
+		this.sendReplyBox('Need help on Dun Deal's Place?<br />' +
+		                  '- <a href="http://dundealtier.weebly.com/">Dun Deal Tier!</a><br />' +
+		                  '- <a href="http://partiallyused.weebly.com/"Partially Used Tier!</a><br />' +
+		                  '- <a href="http://twitter.com/DunDealShowdown/"Dun Deal Twitter!</a><br />' +
+		                  '- <a href="http://youtube.com/user/DunDealShowdown/"Dun Deal Youtube!</a>');
 	},
 
 	birkal: function(target, room, user) {
