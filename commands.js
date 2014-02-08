@@ -372,8 +372,7 @@ var commands = exports.commands = {
 		}
 		if (target.toLowerCase() === 'dundealsplace') {
 				return connection.sendTo('dundealsplace','|html|<div class="infobox" style="border-color:blue"><center><b><u>Welcome to <i>Dun Deal\'s Place</i>!</u></b></center><br />' +
-					'<center>The place where you find all the DDT and PU guys! For more information: <b>/ddphelp</b>!</center><br /><br />'
-					'<center>Meet the Room Staff: <b>/roomauth</b>. Be sure to listen to these guys and help other people to have your name there!</center>');
+			'<center>The place where you find all the DDT and PU guys! For more information: <b>/ddphelp</b>! Room Staff: <b>/roomauth</b>.</center>');
 		}
 	},
 
