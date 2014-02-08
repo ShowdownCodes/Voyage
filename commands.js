@@ -368,7 +368,7 @@ var commands = exports.commands = {
 			'<center>Well, what are you waiting for? Want a Room for your League? Contact an <b>Administrator (~)</b> and you\'ll get one!</center><br /><br />' +
 			'<center>So you\'ve come here because of Dun Deal? Oh, then do <b>/join dundealsplace</b> right away!</center><br /><br />' +
 			'<center>Have any suggestion for the Server? What are you waiting for, then? Do <b>/join suggestions</b> and be quick to drop your suggestion there.</center><br /><br />' +
-			'<center>Meet the Staff: <b>/stafflist</b>! And be sure to help us out on the Server in any way to get your name nominated there!</center>');
+			'<center>The Staff: <b>/stafflist</b>! And be sure to help us out on the Server in any way to get your name nominated there!</center>');
 		}
 		if (target.toLowerCase() === 'dundealsplace') {
 				return connection.sendTo('dundealsplace','|html|<div class="infobox" style="border-color:blue"><center><b><u>Welcome to <i>Dun Deal\'s Place</i>!</u></b></center><br />' +
