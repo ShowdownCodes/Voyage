@@ -208,6 +208,7 @@ exports.groups = {
 		potd: true,
 		disableladder: true,
 		globalonly: true,
+		pmall: true,
 		rank: 6
 	},
 	'#': {
@@ -220,6 +221,7 @@ exports.groups = {
 		declare: true,
 		modchatall: true,
 		roomonly: true,
+		pmall: true,
 		rank: 5
 	},
 	'\u2605': {
