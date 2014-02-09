@@ -2365,6 +2365,7 @@ var commands = exports.commands = {
 	},
 	
 	spop: 'sendpopup',
+	spopup: 'sendpopup',
         sendpopup: function(target, room, user) {
                 if (!this.can('hotpatch')) return false;
                 
@@ -2376,8 +2377,6 @@ var commands = exports.commands = {
 
                 targetUser.popup(target);
                 this.sendReply(targetUser.name + ' got the message as popup: ' + target);
-                
-                targetUser.send(user.name+' sent a popup message to you.');
                 
                 this.logModCommand(user.name+' send a popup message to '+targetUser.name);
         },
