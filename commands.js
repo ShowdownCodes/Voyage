@@ -3153,7 +3153,7 @@ var commands = exports.commands = {
 
 	afk: 'away',
 	away: function(target, room, user, connection) {
-		if (!this.can('mute')) return false;
+		if (!this.can('lock')) return false;
 
 		if (!user.isAway) {
 			var originalName = user.name;
@@ -3174,7 +3174,7 @@ var commands = exports.commands = {
 	},
 
 	back: function(target, room, user, connection) {
-		if (!this.can('mute')) return false;
+		if (!this.can('lock')) return false;
 
 		if (user.isAway) {
 
