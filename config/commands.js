@@ -1337,33 +1337,46 @@ var commands = exports.commands = {
 	},
 
 	hide: 'hideauth',
-	hideauth: function(target, room, user) {
-		if (!this.can('hideauth')) return false;
-		target = target || config.groups.default.global;
-		if (!config.groups.global[target]) {
-			target = config.groups.default.global;
-			this.sendReply("You have picked an invalid group, defaulting to '" + target + "'.");
-		} else if (config.groups.bySymbol[target].globalRank >= config.groups.bySymbol[user.group].globalRank)
-			return this.sendReply("The group you have chosen is either your current group OR one of higher rank. You cannot hide like that.");
+	hideauth: function(target, room, user){
+		if(!user.can('ban'))
+			return this.sendReply( '/hideauth - access denied.');
 
-		user.getIdentity = function (roomid) {
-			var identity = Object.getPrototypeOf(this).getIdentity.call(this, roomid);
-			if (identity[0] === this.group)
-				return target + identity.slice(1);
-			return identity;
+		var tar = ' ';
+		if(target){
+			target = target.trim();
+			if(config.groupsranking.indexOf(target) > -1){
+				if( config.groupsranking.indexOf(target) <= config.groupsranking.indexOf(user.group)){
+					tar = target;
+				}else{
+					this.sendReply('The group symbol you have tried to use is of a higher authority than you have access to. Defaulting to \' \' instead.');
+				}
+			}else{
+				this.sendReply('You have tried to use an invalid character as your auth symbol. Defaulting to \' \' instead.');
+			}
+		}
+
+		user.getIdentity = function(){
+			if(this.muted)
+				return '!' + this.name;
+			if(this.locked)
+				return '#' + this.name;
+			return tar + this.name;
 		};
 		user.updateIdentity();
-		return this.sendReply("You are now hiding your auth as '" + target + "'.");
+		this.sendReply( 'You are now hiding your auth symbol as \''+tar+ '\'.');
+		return this.logModCommand(user.name + ' is hiding auth symbol as \''+ tar + '\'');
 	},
 
-	show: 'showauth',
-	showauth: function(target, room, user) {
-		if (!this.can('hideauth')) return false;
+	showauth: function(target, room, user){
+		if(!user.can('ban'))
+			return	this.sendReply( '/showauth - access denied.');
+
 		delete user.getIdentity;
 		user.updateIdentity();
-		return this.sendReply("You are now showing your authority!");
+		this.sendReply('You have now revealed your auth symbol.');
+		return this.logModCommand(user.name + ' has revealed their auth symbol.');
 	},
-
+	
 	sk: 'superkick',
 	superkick: function(target, room, user){
 		if (!target) return;
