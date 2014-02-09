@@ -51,6 +51,13 @@ exports.Formats = [
 		banlist: ['Uber', 'Soul Dew', 'Gengarite', 'Kangaskhanite', 'Heracronite', 'OU', 'BL', 'Drizzle', 'Drought']
 	},
 	{
+                name: "PU",
+                section: "XY Singles",
+                
+                ruleset: ['Pokemon', 'Standard', 'Team Preview'],
+                banlist: ['Uber', 'OU', 'BL', 'UU', 'Illegal', 'Unreleased', 'Drought', 'Drizzle', 'Sand Stream', 'Snow Warning', 'Bright Powder', 'Focus Band', 'King\'s Rock', 'Lax Incense', 'Quick Claw', 'Quick Powder', 'Razor Claw', 'Razor Fang', 'Attract', 'Confuse Ray', 'Flatter', 'Supersonic', 'Swagger', 'Sweet Kiss', 'Teeter Dance']
+        },
+	{
 		name: "LC",
 		section: "XY Singles",
 
