@@ -948,10 +948,8 @@ var commands = exports.commands = {
         e6mac: 'macrarazy',
 	macrarazy: function(target, room, user) {
 		if (!this.canBroadcast()) return;
-		this.sendReplyBox('<center><img src="http://media-cerulean.cursecdn.com/attachments/thumbnails/5/622/530/530/mega_lucario.png" height="180" width="150"><br />' +
-                '<img src="http://th03.deviantart.net/fs70/PRE/i/2014/003/8/1/mega_aggron_by_theangryaron-d70p759.png" height="130" width="150"> <img src="http://i.imgur.com/91GZs2L.gif"> <img src="http://fc06.deviantart.net/fs70/f/2013/285/4/7/mega_aggron_tramplin__the_lawn_by_brandon_stuart-d6q5051.png" height="130" width="160"><br />' +
-		'<b><blink>Ace: Mega Aggron</blink><br />' +
-		'<font color=gray>Sometimes... Steel is too much for you!</font></b>')},
+		this.sendReplyBox('<center><img src="http://i.imgur.com/N3bjn31.png"></img></center><br />' +
+		                  '<center><h1>mac sucks</h></center>')},
 
   	
   	messi: function(target, room, user) {  
