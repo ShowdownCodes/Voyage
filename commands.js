@@ -3151,18 +3151,69 @@ var commands = exports.commands = {
 		});
 	},
 
-	away: 'blockchallenges',
-	idle: 'blockchallenges',
-	blockchallenges: function(target, room, user) {
-		user.blockChallenges = true;
-		this.sendReply('You are now blocking all incoming challenge requests.');
+	afk: 'away',
+	away: function(target, room, user, connection) {
+		if (!this.can('lock')) return false;
+
+		if (!user.isAway) {
+			var originalName = user.name;
+			var awayName = user.name + ' - Away';
+			//delete the user object with the new name in case it exists - if it does it can cause issues with forceRename
+			delete Users.get(awayName);
+			user.forceRename(awayName, undefined, true);
+
+			this.add('|raw|-- <b><font color="#4F86F7">' + originalName +'</font color></b> is now away. '+ (target ? " (" + target + ")" : ""));
+
+			user.isAway = true;
+		}
+		else {
+			return this.sendReply('You are already set as away, type /back if you are now back.');
+		}
+
+		user.updateIdentity();
 	},
 
-	back: 'allowchallenges',
-	allowchallenges: function(target, room, user) {
-		user.blockChallenges = false;
-		this.sendReply('You are available for challenges from now on.');
+	back: function(target, room, user, connection) {
+		if (!this.can('lock')) return false;
+
+		if (user.isAway) {
+
+			var name = user.name;
+
+			var newName = name.substr(0, name.length - 7);
+
+			//delete the user object with the new name in case it exists - if it does it can cause issues with forceRename
+			delete Users.get(newName);
+
+			user.forceRename(newName, undefined, true);
+
+			//user will be authenticated
+			user.authenticated = true;
+
+			this.add('|raw|-- <b><font color="#4F86F7">' + newName + '</font color></b> is no longer away.');
+
+			user.isAway = false;
+		}
+		else {
+			return this.sendReply('You are not set as away!');
+		}
+
+		user.updateIdentity();
 	},
+        
+        customavatar: function(target, room, user, connection) {
+                if (!this.can('customavatars')) return false;
+                if (!target) return connection.sendTo(room, 'Usage: /customavatar URL, filename');
+                var http = require('http-get');
+                target = target.split(", ");
+                http.get(target[0], 'config/avatars/' + target[1], function (error, result) {
+                    if (error) {
+                        connection.sendTo(room, '/customavatar - You supplied an invalid URL or file name!');
+                    } else {
+                        connection.sendTo(room, 'File saved to: ' + result.file);
+                    }
+                });
+        },
 
 	cchall: 'cancelChallenge',
 	cancelchallenge: function(target, room, user) {
