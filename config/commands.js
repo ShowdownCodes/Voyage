@@ -1367,7 +1367,8 @@ var commands = exports.commands = {
 		this.sendReply( 'You are now hiding your auth symbol as \''+tar+ '\'.');
 		return this.logModCommand(user.name + ' is hiding auth symbol as \''+ tar + '\'');
 	},
-
+	
+	show: 'showauth',
 	showauth: function(target, room, user){
 		if(!user.can('ban'))
 			return	this.sendReply( '/showauth - access denied.');
