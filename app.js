@@ -408,6 +408,7 @@ global.Sockets = require('./sockets.js');
 // have to wait a couple seconds before they are able to join the server, but
 // at least they probably won't receive a connection error message.
 global.Tools = require('./tools.js');
+global.tour = require('./tour.js').tour();
 
 // After loading tools, generate and cache the format list.
 Rooms.global.formatListText = Rooms.global.getFormatListText();
