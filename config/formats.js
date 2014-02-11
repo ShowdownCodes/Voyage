@@ -375,6 +375,13 @@ exports.Formats = [
 		banlist: ['Uber', 'Soul Dew', 'Gengarite', 'Kangaskhanite']
 	},
 	{
+		name: "MegaMons",
+		section: "Other Metagames",
+
+		ruleset: ['Pokemon', 'Team Preview', 'Standard'],
+		banlist: ['Soul Dew', 'Gengar-Mega', 'Mewtwo-Mega-X', 'Mewtwo-Mega-Y', 'Mewtwonite-Y', 'Mewtwonite-X', 'Gengarite']
+	},
+	{
 		name: "Challenge Cup",
 		section: "Other Metagames",
 
