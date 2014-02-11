@@ -375,7 +375,7 @@ exports.Formats = [
 		banlist: ['Uber', 'Soul Dew', 'Gengarite', 'Kangaskhanite']
 	},
 	{
-		name: "MegaMons",
+		name: "MegaMons (beta)",
 		section: "Other Metagames",
 
 		ruleset: ['Pokemon', 'Team Preview', 'Standard'],
