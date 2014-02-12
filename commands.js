@@ -1887,7 +1887,7 @@ var commands = exports.commands = {
 	
 	breaklink: 'unlink',
 	unlink: function(target, room, user) {
-		if (!user.can('hotpatch')) return false;
+		if (!this.can('hotpatch')) return false;
 		target = this.splitTarget(target);
 		var targetUser = this.targetUser;
 		if (!targetUser)  return this.sendReply('Specify who\'s links to unlink!'); 
