@@ -382,6 +382,13 @@ exports.Formats = [
 		banlist: ['Soul Dew', 'Gengar-Mega', 'Mewtwo-Mega-X', 'Mewtwo-Mega-Y', 'Mewtwonite-Y', 'Mewtwonite-X', 'Gengarite']
 	},
 	{
+		name: "OU - No Preview",
+		section: "XY Singles",
+
+		ruleset: ['Pokemon', 'Standard'],
+		banlist: ['Uber', 'Soul Dew', 'Gengarite', 'Kangaskhanite', 'Lucarionite', 'Genesect', 'Deoxys-Speed', 'Deoxys-Defense']
+	},
+	{
 		name: "Challenge Cup",
 		section: "Other Metagames",
 
