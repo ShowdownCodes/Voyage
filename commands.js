@@ -1883,15 +1883,12 @@ var commands = exports.commands = {
 			return this.sendReply('Poof is currently disabled.');
 		}
 	},
-<<<<<<< HEAD
 	
 	unlink: function(target, room, user){
 		if (!this.can('lock')) return false;
 		if (!target) return this.sendReply('Specify who\'s links to unlink!')
 		this.add('|unlink|' + targetUser.userid);
 	},
-=======
->>>>>>> parent of 766a0fa... test unlink
 
 	/*********************************************************
 	 * Moderating: Punishments
