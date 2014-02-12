@@ -383,7 +383,7 @@ exports.Formats = [
 	},
 	{
 		name: "OU - No Preview",
-		section: "XY Singles",
+		section: "Other Metagames",
 
 		ruleset: ['Pokemon', 'Standard'],
 		banlist: ['Uber', 'Soul Dew', 'Gengarite', 'Kangaskhanite', 'Lucarionite', 'Genesect', 'Deoxys-Speed', 'Deoxys-Defense']
