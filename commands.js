@@ -1892,7 +1892,7 @@ var commands = exports.commands = {
 		var targetUser = this.targetUser;
 		if (!targetUser)  return this.sendReply('Specify who\'s links to unlink!'); 
 		this.parse('/a |unlink|'+targetUser+'');
-		return this.parse('/modnote' +targetUser+ 'had their links unlinked.');
+		return this.parse('/modnote ' +targetUser+ ' had their links unlinked.');
 	},
         
 	/*********************************************************
