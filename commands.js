@@ -1886,6 +1886,7 @@ var commands = exports.commands = {
 	
 	unlink: function(target, room, user) {
                 if (!target) return this.sendReply('Specify who\'s links to unlink!');
+                target = this.splitTarget(target);
                 var targetUser = this.targetUser;
                 if (!targetUser) return this.sendReply('User '+this.targetUser+' not found.');
                 if (!this.can('unlink', targetUser)) return this.sendReply('/unlink - Access denied.');
