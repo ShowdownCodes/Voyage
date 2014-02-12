@@ -1416,7 +1416,8 @@ var commands = exports.commands = {
 
 		if (!targetUser) return this.sendReply("User '"+this.targetUsername+"' is not online.");
 
-		if (!room.founder || room.founder != user.userid && !this.can('makeroom')) return false;
+		if (!room.founder) return this.sendReply('The room needs a room founder before it can have a room owner.');
+		if (room.founder != user.userid && !this.can('makeroom')) return this.sendReply('/roomowner - Access denied.');
 
 		if (!room.auth) room.auth = room.chatRoomData.auth = {};
 
@@ -1885,17 +1886,13 @@ var commands = exports.commands = {
 	},
 	
 	unlink: function(target, room, user) {
-                if (!target) return this.sendReply('Specify who\'s links to unlink!');
-                target = this.splitTarget(target);
-                var targetUser = this.targetUser;
-                if (!targetUser) return this.sendReply('User '+this.targetUser+' not found.');
-                if (!this.can('unlink', targetUser)) return this.sendReply('/unlink - Access denied.');
-                this.privateModCommand('('+targetUser.name+' had their links unlinked by '+user.name+'. Any links they have posted will now be unclickable.)');
-                for (var u in targetUser.prevNames) {
-                        this.add('|unlink|'+targetUser.prevNames[u]);
-                }
-        },
-
+		if (!user.can('hotpatch')) return false;
+		target = this.splitTarget(target);
+		var targetUser = this.targetUser;
+		if (!targetUser)  return this.sendReply('Specify who\'s links to unlink!'); 
+		this.parse('/a |unlink|'+targetUser+'');
+	},
+        
 	/*********************************************************
 	 * Moderating: Punishments
 	 *********************************************************/
