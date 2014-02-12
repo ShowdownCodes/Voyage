@@ -1884,11 +1884,16 @@ var commands = exports.commands = {
 		}
 	},
 	
-	unlink: function(target, room, user){
-		if (!this.can('lock')) return false;
-		if (!target) return this.sendReply('Specify who\'s links to unlink!')
-		this.add('|unlink|' + targetUser.userid);
-	},
+	unlink: function(target, room, user) {
+                if (!target) return this.sendReply('Specify who\'s links to unlink!');
+                var targetUser = this.targetUser;
+                if (!targetUser) return this.sendReply('User '+this.targetUser+' not found.');
+                if (!this.can('unlink', targetUser)) return this.sendReply('/unlink - Access denied.');
+                this.privateModCommand('('+targetUser.name+' had their links unlinked by '+user.name+'. Any links they have posted will now be unclickable.)');
+                for (var u in targetUser.prevNames) {
+                        this.add('|unlink|'+targetUser.prevNames[u]);
+                }
+        },
 
 	/*********************************************************
 	 * Moderating: Punishments
@@ -1931,6 +1936,7 @@ var commands = exports.commands = {
 
 		this.addModCommand(''+targetUser.name+' was warned by '+user.name+'.' + (target ? " (" + target + ")" : ""));
 		targetUser.send('|c|~|/warn '+target);
+		this.add('|unlink|' + targetUser.userid);
 	},
 
 	redirect: 'redir',
