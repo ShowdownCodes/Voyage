@@ -1895,6 +1895,12 @@ var commands = exports.commands = {
 		return this.parse('/modnote ' +targetUser+ ' had their links unlinked.');
 	},
         
+        mells: 'melissa',
+        melissa: function(target, room, user) {
+        	if (!this.can('hotpatch')) return false;
+        	this.sendReply('Yes... Mells sucks no! :P ~ Astre Legit')
+        },
+        
 	/*********************************************************
 	 * Moderating: Punishments
 	 *********************************************************/
