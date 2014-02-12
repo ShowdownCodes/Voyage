@@ -1888,7 +1888,7 @@ var commands = exports.commands = {
 		if (!this.can('lock')) return false;
 		if (!target) return this.sendReply('Specify who\'s links to unlink!')
 		this.add('|unlink|' + targetUser.userid);
-	}
+	},
 
 	/*********************************************************
 	 * Moderating: Punishments
