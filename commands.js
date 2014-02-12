@@ -1885,6 +1885,7 @@ var commands = exports.commands = {
 		}
 	},
 	
+	breaklink: 'unlink',
 	unlink: function(target, room, user) {
 		if (!user.can('hotpatch')) return false;
 		target = this.splitTarget(target);
