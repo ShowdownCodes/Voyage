@@ -1069,29 +1069,32 @@ var cmds = {
 
 	endsurvey: 'endpoll',
 	ep: 'endpoll',
-	endpoll: function (target, room, user) {
-		if (!tour.lowauth(user, room)) return this.sendReply('You do not have enough authority to use this command.');
-		if (!tour[room.id] || !tour[room.id].question) return this.sendReply('There is no poll to end in this room.');
+	endpoll: function(target, room, user) {
+		if (!tour.lowauth(user,room)) return this.sendReply('You do not have enough authority to use this command.');
+		if (!tour[room.id].question) return this.sendReply('There is no poll to end in this room.');
+		if (tour[room.id].usergroup > config.groupsranking.indexOf(user.group)) return this.sendReply('You cannot end this poll as it was started by a user of higher auth than you.');
 		var votes = Object.keys(tour[room.id].answers).length;
-		if (votes == 0) return room.addRaw("<h3>The poll was canceled because of lack of voters.</h3>");
+		if (votes == 0) {
+			tour[room.id].question = undefined;
+			tour[room.id].answerList = new Array();
+			tour[room.id].answers = new Object();
+			return room.addRaw("<h3>The poll was canceled because of lack of voters.</h3>");			
+		}
 		var options = new Object();
 		var obj = tour[room.id];
 		for (var i in obj.answerList) options[obj.answerList[i]] = 0;
 		for (var i in obj.answers) options[obj.answers[i]]++;
 		var sortable = new Array();
 		for (var i in options) sortable.push([i, options[i]]);
-		sortable.sort(function (a, b) {
-			return a[1] - b[1]
-		});
+		sortable.sort(function(a, b) {return a[1] - b[1]});
 		var html = "";
 		for (var i = sortable.length - 1; i > -1; i--) {
-			console.log(i);
+			//console.log(i);
 			var option = sortable[i][0];
 			var value = sortable[i][1];
-			html += "&bull; " + option + " - " + Math.floor(value / votes * 100) + "% (" + value + ")<br />";
+			if (value > 0) html += "&bull; " + option + " - " + Math.floor(value / votes * 100) + "% (" + value + ")<br />";
 		}
-		room.addRaw('<div class="infobox"><h2>Results to "' + obj.question + '"<br /><i><font size=1>Poll ended by '+user.name+'</font size></i></h2><hr />' + html + '</div>');
-		tour[room.id].question = undefined;
+		room.addRaw('<div class="infobox"><h2>Results to "' + obj.question + '"<br /><i><font size=1 color = "#939393">Poll ended by '+user.name+'</font></i></h2><hr />' + html + '</div>');		tour[room.id].question = undefined;
 		tour[room.id].answerList = new Array();
 		tour[room.id].answers = new Object();
 	},
