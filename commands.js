@@ -2365,13 +2365,28 @@ var commands = exports.commands = {
 		this.logModCommand(user.name+' declared '+target);
 	},
 
-	gdeclare: 'globaldeclare',
-	globaldeclare: function(target, room, user) {
-		if (!target) return this.parse('/help globaldeclare');
-		if (!this.can('gdeclare')) return false;
+	gdeclarered: 'gdeclare',
+	gdeclaregreen: 'gdeclare',
+	gdeclare: function(target, room, user, connection, cmd) {
+		if (!target) return this.parse('/help gdeclare');
+		if (!this.can('lockdown')) return false;
 
-		for (var id in Rooms.rooms) {
-			if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-blue"><b>'+target+'</b></div>');
+		var roomName = (room.isPrivate)? 'a private room' : room.id;
+
+		if (cmd === 'gdeclare'){
+			for (var id in Rooms.rooms) {
+				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-blue"><b><font size=1><i>Global declare from '+roomName+'<br /></i></font size>'+target+'</b></div>');
+			}
+		}
+		if (cmd === 'gdeclarered'){
+			for (var id in Rooms.rooms) {
+				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-red"><b><font size=1><i>Global declare from '+roomName+'<br /></i></font size>'+target+'</b></div>');
+			}
+		}
+		else if (cmd === 'gdeclaregreen'){
+			for (var id in Rooms.rooms) {
+				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-green"><b><font size=1><i>Global declare from '+roomName+'<br /></i></font size>'+target+'</b></div>');
+			}
 		}
 		this.logModCommand(user.name+' globally declared '+target);
 	},
@@ -2535,6 +2550,43 @@ var commands = exports.commands = {
 					connection.popup('No moderator actions containing "'+target+'" were found on ' + roomNames + '.');
 				} else {
 					connection.popup('Displaying the last '+grepLimit+' logged actions containing "'+target+'" on ' + roomNames + ':\n\n'+stdout);
+				}
+			}
+		});
+	},
+	
+	roomlog: function(target, room, user, connection) {
+		if (!this.can('mute', null, room)) return false;
+		var lines = 0;
+		if (!target.match('[^0-9]')) {
+			lines = parseInt(target || 15, 10);
+			if (lines > 100) lines = 100;
+		}
+		var filename = 'logs/chat/'+room.id+'/'+room.id+'.txt';
+		var command = 'tail -'+lines+' '+filename;
+		var grepLimit = 100;
+		if (!lines || lines < 0) { // searching for a word instead
+			if (target.match(/^["'].+["']$/)) target = target.substring(1,target.length-1);
+			command = "awk '{print NR,$0}' "+filename+" | sort -nr | cut -d' ' -f2- | grep -m"+grepLimit+" -i '"+target.replace(/\\/g,'\\\\\\\\').replace(/["'`]/g,'\'\\$&\'').replace(/[\{\}\[\]\(\)\$\^\.\?\+\-\*]/g,'[$&]')+"'";
+		}
+
+		require('child_process').exec(command, function(error, stdout, stderr) {
+			if (error && stderr) {
+				connection.popup('/roomlog erred - roomlog does not support Windows');
+				console.log('/roomlog error: '+error);
+				return false;
+			}
+			if (lines) {
+				if (!stdout) {
+					connection.popup('The roomlog is empty. (Weird.)');
+				} else {
+					connection.popup('Displaying the last '+lines+' lines of the Moderator Log in '+room.id+':\n\n'+stdout);
+				}
+			} else {
+				if (!stdout) {
+					connection.popup('No moderator actions containing "'+target+'" were found in '+roomid+'.');
+				} else {
+					connection.popup('Displaying the last '+grepLimit+' logged actions in '+room.id+'containing "'+target+'":\n\n'+stdout);
 				}
 			}
 		});
