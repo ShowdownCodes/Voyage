@@ -736,12 +736,12 @@ var commands = exports.commands = {
 	tourcommands: function(target, room, user) {
         if (!this.canBroadcast()) return;
         this.sendReplyBox('Tournaments through /tour can be started by Voice (+) users and higher:<br \>' +
-        '/tour [tier], [size] - Starts a tournament<br \>' +
-		'/endtour - Ends a currently running tournament<br \>' +
-		'/fj [username] - Force someone to join a tournament<br \>' +
-		'/fl [username] - Force someone to leave a tournament<br \>' +
-		'/toursize [size] - Changes the size of a currently running tournament<br \>' +
-		'/replace [username], [username] - Replaces user in a tournament with the second user');
+        		  '/tour [tier], [size] - Starts a tournament<br \>' +
+			  '/endtour - Ends a currently running tournament<br \>' +
+			  '/fj [username] - Force someone to join a tournament<br \>' +
+			  '/fl [username] - Force someone to leave a tournament<br \>' +
+			  '/toursize [size] - Changes the size of a currently running tournament<br \>' +
+			  '/replace [username], [username] - Replaces user in a tournament with the second user');
         },
 
 	/***************************************
@@ -872,8 +872,6 @@ var commands = exports.commands = {
                         '- /roommod, /roomdriver <em>username</em>: appoint a room moderator/driver<br />' +
                         '- /roomdemod, /roomdedriver <em>username</em>: remove a room moderator/driver<br />' +
                         '- /declare <em>message</em>: make a declaration in the room<br />' +
-                        '- /lockroom: locks the room preventing users from joining.<br />' +
-                        '- /unlockroom: unlocks the room allowing users to join.<br />' +
                         '- /modchat <em>[%/@/#]</em>: set modchat level<br />' +
                         '<br />' +
                         'The room founder can also use:<br />' +
