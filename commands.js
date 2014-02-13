@@ -3264,6 +3264,18 @@ var commands = exports.commands = {
 
 		user.updateIdentity();
 	},
+	
+	idle: 'blockchallenges',
+	blockchallenges: function(target, room, user) {
+		user.blockChallenges = true;
+		this.sendReply('You are now blocking all incoming challenge requests.');
+	},
+
+	unidle: 'allowchallenges',
+	allowchallenges: function(target, room, user) {
+		user.blockChallenges = false;
+		this.sendReply('You are available for challenges from now on.');
+	},
         
         customavatar: function(target, room, user, connection) {
                 if (!this.can('customavatars')) return false;
