@@ -1369,6 +1369,24 @@ var commands = exports.commands = {
 			}
 		}
 	},
+	
+	leagueroom: function(target, room, user) {
+		if (!this.can('makeroom')) return;
+		if (!room.chatRoomData) {
+			return this.sendReply('/leagueroom - This room can\'t be marked as a league');
+		}
+		if (target === 'off') {
+			delete room.isLeague;
+			this.addModCommand(user.name+' has made this chat room a normal room.');
+			delete room.chatRoomData.isLeague;
+			Rooms.global.writeChatRoomData();
+		} else {
+			room.isLeague = true;
+			this.addModCommand(user.name+' made this room a league room.');
+			room.chatRoomData.isLeague = true;
+			Rooms.global.writeChatRoomData();
+		}
+	},
 
 	officialchatroom: 'officialroom',
 	officialroom: function(target, room, user) {
@@ -1543,6 +1561,28 @@ var commands = exports.commands = {
 			Rooms.global.writeChatRoomData();
 		}
 	},
+	
+	/*lockroom: function(target, room, user) {
+		if (!room.auth) {
+			return this.sendReply("Only unofficial chatrooms can be locked.");
+		}
+		if (room.auth[user.userid] != '#' && user.group != '~') {
+			return this.sendReply('/lockroom - Access denied.');
+		}
+		room.lockedRoom = true;
+		this.addRoomCommand(user.name + ' has locked the room.',room.id);
+	},
+
+	unlockroom: function(target, room, user) {
+		if (!room.auth) {
+			return this.sendReply("Only unofficial chatrooms can be unlocked.");
+		}
+		if (room.auth[user.userid] != '#' && user.group != '~') {
+			return this.sendReply('/unlockroom - Access denied.');
+		}
+		room.lockedRoom = false;
+		this.addRoomCommand(user.name + ' has unlocked the room.',room.id);
+	},*/
 
 	autojoin: function(target, room, user, connection) {
 		Rooms.global.autojoinRooms(user, connection)
