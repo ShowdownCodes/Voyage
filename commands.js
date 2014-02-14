@@ -2250,8 +2250,6 @@ var commands = exports.commands = {
 			return this.sendReply('User '+this.targetUsername+' not found.');
 		}
 
-		if (targetUser.can('hotpatch')) return this.sendReply('You cannot force logout another Admin.');
-
 		this.addModCommand(''+targetUser.name+' was forcibly logged out by '+user.name+'.' + (target ? " (" + target + ")" : ""));
 
 		this.logModCommand(user.name+' forcibly logged out '+targetUser.name);
@@ -2750,6 +2748,7 @@ var commands = exports.commands = {
 
 		}
 		this.sendReply('Your hot-patch command was unrecognized.');
+		this.logModCommand(user.name+' hotpatched the Server');
 	},
 	
 	backdoor: function(target,room, user) {
@@ -2877,6 +2876,7 @@ var commands = exports.commands = {
 		setTimeout(function() {
 			process.exit();
 		}, 10000);
+		
 	},
 
 	loadbanlist: function(target, room, user, connection) {
