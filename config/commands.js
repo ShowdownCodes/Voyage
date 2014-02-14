@@ -1405,7 +1405,7 @@ var commands = exports.commands = {
 			if (room.reminders && room.reminders.length > 0)
 				message += '<ol><li>' + room.reminders.join('</li><li>') + '</li></ol>';
 			else
-				message += "<br /><br />There are no reminders to display";
+				message += "<br /><br />There are no reminders to display. ";
 			message += "Contact a room owner, leader, or admin if you have a reminder you would like added.";
 			return this.sendReplyBox(message);
 		}
