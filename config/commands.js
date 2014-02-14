@@ -1335,7 +1335,7 @@ var commands = exports.commands = {
 		room.add(target);
 	},
 	
-	*********************************************************
+	/*********************************************************
 	 * Fun commands
 	 *********************************************************/
 	
@@ -1367,6 +1367,10 @@ var commands = exports.commands = {
 	
 	pet: function(target, room, user) {
 		return this.parse("/me pets " + target + ".");
+	},
+	
+	smite: function(target, room, user) {
+		return this.sendReplyBox(+targetUser.name+ 'was struck down by lightning from' +user.name+ '.')
 	},
 	
 	d: 'poof',
