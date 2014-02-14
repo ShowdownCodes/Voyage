@@ -1335,9 +1335,39 @@ var commands = exports.commands = {
 		room.add(target);
 	},
 	
-	/*********************************************************
-	 * Poof and hide/show
+	*********************************************************
+	 * Fun commands
 	 *********************************************************/
+	
+	slap: function(target, room, user) {
+		return this.parse("/me slaps " + target + " with a large trout.");
+	},
+	
+	dk: 'dropkick',
+	dropkick: function(target, room, user) {
+		return this.parse("/me dropkicks " + target + " across the Pokémon Stadium!");
+	},
+	
+	punt: function(target, room, user) {
+		return this.parse("/me punts " + target + " to the moon!");
+	},
+	
+	hug: function(target, room, user) {
+		return this.parse("/me hugs " + target + ".");
+	},
+	
+	poke: function(target, room, user) {
+		return this.parse("/me pokes " + target + ".");
+	},
+	
+	crai: 'cry',
+	cry: function(target, room, user) {
+		return this.parse("/me starts tearbending dramatically like Katara.");
+	},
+	
+	pet: function(target, room, user) {
+		return this.parse("/me pets " + target + ".");
+	},
 	
 	d: 'poof',
 	cpoof: 'poof',
