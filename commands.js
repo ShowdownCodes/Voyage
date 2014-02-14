@@ -2416,27 +2416,56 @@ var commands = exports.commands = {
 	gdeclarered: 'gdeclare',
 	gdeclaregreen: 'gdeclare',
 	gdeclare: function(target, room, user, connection, cmd) {
-		if (!target) return this.parse('/help gdeclare');
-		if (!this.can('lockdown')) return false;
+		if (!target) return this.parse('/help '+cmd);
+		if (!this.can('gdeclare')) return false;
+		var staff = '';
+		staff = 'a ' + config.groups[user.group].name;
+		if (user.group == '~') staff = 'an Administrator';
 
-		var roomName = (room.isPrivate)? 'a private room' : room.id;
+		//var roomName = (room.isPrivate)? 'a private room' : room.id;
 
 		if (cmd === 'gdeclare'){
 			for (var id in Rooms.rooms) {
-				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-blue"><b><font size=1><i>Global declare from '+roomName+'<br /></i></font size>'+target+'</b></div>');
+				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-blue"><b><font size=1><i>Global declare by '+staff+'<br /></i></font size>'+target+'</b></div>');
 			}
 		}
 		if (cmd === 'gdeclarered'){
 			for (var id in Rooms.rooms) {
-				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-red"><b><font size=1><i>Global declare from '+roomName+'<br /></i></font size>'+target+'</b></div>');
+				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-red"><b><font size=1><i>Global declare by '+staff+'<br /></i></font size>'+target+'</b></div>');
 			}
 		}
 		else if (cmd === 'gdeclaregreen'){
 			for (var id in Rooms.rooms) {
-				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-green"><b><font size=1><i>Global declare from '+roomName+'<br /></i></font size>'+target+'</b></div>');
+				if (id !== 'global') Rooms.rooms[id].addRaw('<div class="broadcast-green"><b><font size=1><i>Global declare by '+staff+'<br /></i></font size>'+target+'</b></div>');
 			}
 		}
 		this.logModCommand(user.name+' globally declared '+target);
+	},
+
+	pgdeclare: function(target, room, user) {
+		if (!target) return this.parse('/help pgdeclare');
+		if (!this.can('pgdeclare')) return;
+
+		if (!this.canTalk()) return;
+
+		for (var r in Rooms.rooms) {
+			if (Rooms.rooms[r].type === 'chat') Rooms.rooms[r].add('|raw|<b>'+target+'</b></div>');
+		}
+
+		this.logModCommand(user.name+' declared '+target+' to all rooms.');
+	},
+
+	modmsg: 'declaremod',
+	moddeclare: 'declaremod',
+	declaremod: function(target, room, user) {
+		if (!target) return this.sendReply('/declaremod [message] - Also /moddeclare and /modmsg');
+		if (!this.can('declare', null, room)) return false;
+
+		if (!this.canTalk()) return;
+
+		this.privateModCommand('|raw|<div class="broadcast-red"><b><font size=1><i>Private Auth (Driver +) declare from '+user.name+'<br /></i></font size>'+target+'</b></div>');
+
+		this.logModCommand(user.name+' mod declared '+target);
 	},
 	
 	spop: 'sendpopup',
