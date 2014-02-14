@@ -2459,11 +2459,11 @@ var commands = exports.commands = {
 	moddeclare: 'declaremod',
 	declaremod: function(target, room, user) {
 		if (!target) return this.sendReply('/declaremod [message] - Also /moddeclare and /modmsg');
-		if (!this.can('declare', null, room)) return false;
+		if (!this.can('mute', null, room)) return false;
 
 		if (!this.canTalk()) return;
 
-		this.privateModCommand('|raw|<div class="broadcast-red"><b><font size=1><i>Private Auth (Driver +) declare from '+user.name+'<br /></i></font size>'+target+'</b></div>');
+		this.privateModCommand('|raw|<div class="broadcast-red"><b><font size=1><i>Private Auth (Driver and above) declare from '+user.name+'<br /></i></font size>'+target+'</b></div>');
 
 		this.logModCommand(user.name+' mod declared '+target);
 	},
