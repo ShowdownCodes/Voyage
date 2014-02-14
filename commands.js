@@ -2395,13 +2395,21 @@ var commands = exports.commands = {
 		this.logModCommand(user.name+' set modchat to '+room.modchat);
 	},
 
-	declare: function(target, room, user) {
+	declarered: 'declare',
+	declaregreen: 'declare',
+	declare: function(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help declare');
 		if (!this.can('declare', null, room)) return false;
 
-		if (!this.canTalk()) return;
-
-		this.add('|raw|<div class="broadcast-blue"><b>'+target+'</b></div>');
+		if (cmd === 'declare'){
+			this.add('|raw|<div class="broadcast-blue"><b>'+target+'</b></div>');
+		}
+		if (cmd === 'declarered'){
+			this.add('|raw|<div class="broadcast-red"><b>'+target+'</b></div>');
+		}
+		if (cmd === 'declaregreen'){
+			this.add('|raw|<div class="broadcast-green"><b>'+target+'</b></div>');
+		}
 		this.logModCommand(user.name+' declared '+target);
 	},
 
