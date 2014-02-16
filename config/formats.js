@@ -150,24 +150,6 @@ exports.Formats = [
 		// no restrictions, for serious (other than team preview)
 		ruleset: ['Team Preview']
 	},
-	
-	// (NEW!) Other Metas
-	///////////////////////////////////////////////////////////////////
-
-	{
-		name: "MegaMons",
-		section: "(NEW!) Other Metas",
-
-		ruleset: ['Pokemon', 'Team Preview', 'Standard'],
-		banlist: ['Soul Dew', 'Gengar-Mega', 'Mewtwo-Mega-X', 'Mewtwo-Mega-Y', 'Mewtwonite-Y', 'Mewtwonite-X', 'Gengarite']
-	},
-	{
-		name: "OU - No Preview",
-		section: "(NEW!) Other Metas",
-
-		ruleset: ['Pokemon', 'Standard'],
-		banlist: ['Uber', 'Soul Dew', 'Gengarite', 'Kangaskhanite', 'Lucarionite', 'Genesect', 'Deoxys-Speed', 'Deoxys-Defense']
-	},
 
 	// XY Doubles
 	///////////////////////////////////////////////////////////////////
@@ -341,6 +323,24 @@ exports.Formats = [
 		defaultLevel: 100,
 		debug: true,
 		ruleset: ['Team Preview']
+	},
+	
+	// (NEW!) Other Metas
+	///////////////////////////////////////////////////////////////////
+
+	{
+		name: "MegaMons",
+		section: "(NEW!) Other Metas",
+
+		ruleset: ['Pokemon', 'Team Preview', 'Standard'],
+		banlist: ['Soul Dew', 'Gengar-Mega', 'Mewtwo-Mega-X', 'Mewtwo-Mega-Y', 'Mewtwonite-Y', 'Mewtwonite-X', 'Gengarite']
+	},
+	{
+		name: "OU - No Preview",
+		section: "(NEW!) Other Metas",
+
+		ruleset: ['Pokemon', 'Standard'],
+		banlist: ['Uber', 'Soul Dew', 'Gengarite', 'Kangaskhanite', 'Lucarionite', 'Genesect', 'Deoxys-Speed', 'Deoxys-Defense']
 	},
 
 	// Other Metagames
