@@ -579,22 +579,22 @@ var commands = exports.commands = {
 		if (cmd === 'g6learn') lsetData.format = {noPokebank: true};
 
 		if (!template.exists) {
-			return this.sendReply('Pokemon "'+template.id+'" not found.');
+			return this.sendReply("Pokemon '" + template.id + "' not found.");
 		}
 
 		if (targets.length < 2) {
-			return this.sendReply('You must specify at least one move.');
+			return this.sendReply("You must specify at least one move.");
 		}
 
 		for (var i=1, len=targets.length; i<len; i++) {
 			move = Tools.getMove(targets[i]);
 			if (!move.exists) {
-				return this.sendReply('Move "'+move.id+'" not found.');
+				return this.sendReply("Move '" + move.id + "' not found.");
 			}
 			problem = Tools.checkLearnset(move, template, lsetData);
 			if (problem) break;
 		}
-		var buffer = ''+template.name+(problem?" <span class=\"message-learn-cannotlearn\">can't</span> learn ":" <span class=\"message-learn-canlearn\">can</span> learn ")+(targets.length>2?"these moves":move.name);
+		var buffer = template.name + (problem?" <span class=\"message-learn-cannotlearn\">can't</span> learn ":" <span class=\"message-learn-canlearn\">can</span> learn ") + (targets.length>2?"these moves":move.name);
 		if (!problem) {
 			var sourceNames = {E:"egg",S:"event",D:"dream world"};
 			if (lsetData.sources || lsetData.sourcesBefore) buffer += " only when obtained from:<ul class=\"message-learn-list\">";
@@ -605,20 +605,82 @@ var commands = exports.commands = {
 				for (var i=0, len=sources.length; i<len; i++) {
 					var source = sources[i];
 					if (source.substr(0,2) === prevSourceType) {
-						if (prevSourceCount < 0) buffer += ": "+source.substr(2);
-						else if (all || prevSourceCount < 3) buffer += ', '+source.substr(2);
-						else if (prevSourceCount == 3) buffer += ', ...';
+						if (prevSourceCount < 0) buffer += ": " + source.substr(2);
+						else if (all || prevSourceCount < 3) buffer += ", " + source.substr(2);
+						else if (prevSourceCount == 3) buffer += ", ...";
 						prevSourceCount++;
 						continue;
 					}
 					prevSourceType = source.substr(0,2);
 					prevSourceCount = source.substr(2)?0:-1;
-					buffer += "<li>gen "+source.substr(0,1)+" "+sourceNames[source.substr(1,1)];
+					buffer += "<li>gen " + source.substr(0,1) + " " + sourceNames[source.substr(1,1)];
 					if (prevSourceType === '5E' && template.maleOnlyHidden) buffer += " (cannot have hidden ability)";
-					if (source.substr(2)) buffer += ": "+source.substr(2);
+					if (source.substr(2)) buffer += ": " + source.substr(2);
 				}
 			}
-			if (lsetData.sourcesBefore) buffer += "<li>any generation before "+(lsetData.sourcesBefore+1);
+			if (lsetData.sourcesBefore) buffer += "<li>any generation before " + (lsetData.sourcesBefore + 1);
+			buffer += "</ul>";
+		}
+		this.sendReplyBox(buffer);
+	},learnset: 'learn',
+	learnall: 'learn',
+	learn5: 'learn',
+	g6learn: 'learn',
+	learn: function(target, room, user, connection, cmd) {
+		if (!target) return this.parse('/help learn');
+
+		if (!this.canBroadcast()) return;
+
+		var lsetData = {set:{}};
+		var targets = target.split(',');
+		var template = Tools.getTemplate(targets[0]);
+		var move = {};
+		var problem;
+		var all = (cmd === 'learnall');
+		if (cmd === 'learn5') lsetData.set.level = 5;
+		if (cmd === 'g6learn') lsetData.format = {noPokebank: true};
+
+		if (!template.exists) {
+			return this.sendReply("Pokemon '" + template.id + "' not found.");
+		}
+
+		if (targets.length < 2) {
+			return this.sendReply("You must specify at least one move.");
+		}
+
+		for (var i=1, len=targets.length; i<len; i++) {
+			move = Tools.getMove(targets[i]);
+			if (!move.exists) {
+				return this.sendReply("Move '" + move.id + "' not found.");
+			}
+			problem = Tools.checkLearnset(move, template, lsetData);
+			if (problem) break;
+		}
+		var buffer = template.name + (problem?" <span class=\"message-learn-cannotlearn\">can't</span> learn ":" <span class=\"message-learn-canlearn\">can</span> learn ") + (targets.length>2?"these moves":move.name);
+		if (!problem) {
+			var sourceNames = {E:"egg",S:"event",D:"dream world"};
+			if (lsetData.sources || lsetData.sourcesBefore) buffer += " only when obtained from:<ul class=\"message-learn-list\">";
+			if (lsetData.sources) {
+				var sources = lsetData.sources.sort();
+				var prevSource;
+				var prevSourceType;
+				for (var i=0, len=sources.length; i<len; i++) {
+					var source = sources[i];
+					if (source.substr(0,2) === prevSourceType) {
+						if (prevSourceCount < 0) buffer += ": " + source.substr(2);
+						else if (all || prevSourceCount < 3) buffer += ", " + source.substr(2);
+						else if (prevSourceCount == 3) buffer += ", ...";
+						prevSourceCount++;
+						continue;
+					}
+					prevSourceType = source.substr(0,2);
+					prevSourceCount = source.substr(2)?0:-1;
+					buffer += "<li>gen " + source.substr(0,1) + " " + sourceNames[source.substr(1,1)];
+					if (prevSourceType === '5E' && template.maleOnlyHidden) buffer += " (cannot have hidden ability)";
+					if (source.substr(2)) buffer += ": " + source.substr(2);
+				}
+			}
+			if (lsetData.sourcesBefore) buffer += "<li>any generation before " + (lsetData.sourcesBefore + 1);
 			buffer += "</ul>";
 		}
 		this.sendReplyBox(buffer);
