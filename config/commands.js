@@ -1401,15 +1401,14 @@ var commands = exports.commands = {
 	 * Fun commands
 	 *********************************************************/
 	
-	hatsoff: 'celebrate',
-	celebrate: function(target, room, user, cmd) {
+	hatsoff: function(target, room, user) {
 		if (!this.canBroadcast()) return false;
-		if (cmd === 'celebrate') {
+		return this.sendReply("Agreed! Hats off to the awesome guy FranchescoEnzo who really <i>earned</i> his new Admin position. May the Voyage Gods bless him! Hats off from "+user.name+".");
+	},
+	
+	celebrate: function(target, room, user) {
+		if (!this.canBroadcast()) return false;
 			return this.parse("!data Celebrate");
-		}
-		if (cmd === 'hatsoff') {
-			return this.sendReply("Agreed! Hats off to the awesome guy FranchescoEnzo who really <i>earned</i> his new Admin position. May the Voyage Gods bless him! Hats off from "+user.name+".");
-		}
 	},
 	
 	slap: function(target, room, user) {
