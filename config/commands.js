@@ -1321,7 +1321,8 @@ var commands = exports.commands = {
 		                  '- <a href="http://dundealtier.weebly.com/">Dun Deal Tier!</a><br />' +
 		                  '- <a href="http://partiallyused.weebly.com/">Partially Used Tier!</a><br />' +
 		                  '- <a href="http://twitter.com/DunDealShowdown/">Dun Deal Twitter!</a><br />' +
-		                  '- <a href="http://youtube.com/user/DunDealShowdown/">Dun Deal Youtube!</a>');
+		                  '- <a href="http://youtube.com/user/DunDealShowdown/">Dun Deal Youtube!</a><br />' +
+		                  '- <b>/ddproom</b> to join the Dun Deal\'s Place on the Voyage Server!');
 	},
 	
 	birkal: function(target, room, user) {
@@ -1401,14 +1402,13 @@ var commands = exports.commands = {
 	 * Fun commands
 	 *********************************************************/
 	
+	ddproom: function(target, room, user) {
+		return this.parse("/join dundealsplace")
+	},
+	
 	hatsoff: function(target, room, user) {
 		if (!this.canBroadcast()) return false;
 		return this.send("|raw| Agreed! Hats off to the awesome guy FranchescoEnzo who really <i>earned</i> his new Admin position. May the Voyage Gods bless him! Hats off from "+user.name+".");
-	},
-	
-	celebrate: function(target, room, user) {
-		if (!this.canBroadcast()) return false;
-			return this.parse("!data Celebrate");
 	},
 	
 	slap: function(target, room, user) {
