@@ -1401,6 +1401,18 @@ var commands = exports.commands = {
 	 * Fun commands
 	 *********************************************************/
 	
+	hatsoff: 'celebrate',
+	celebrate: function(target, room, user, cmd) {
+		if (cmd === 'celebrate') {
+			if (!this.canBroadcast()) return false;
+				return this.parse("!data Celebrate");
+		}
+		if (cmd === 'hatsoff') {
+			if (!this.can('lock')) return false;
+				return this.sendReply("Agreed! Hats off to the awesome guy FranchescoEnzo who really <i>earned</i> his new Admin position. May the Voyage Gods bless him! Hats off from "+user.name+".")
+		}
+	},
+	
 	slap: function(target, room, user) {
 		return this.parse("/me slaps " + target + " with a large trout.");
 	},
