@@ -3293,23 +3293,56 @@ var commands = exports.commands = {
 		});
 	},
 
+	sleep: 'away',
+	work: 'away',
+	working: 'away',
+	sleeping: 'away',
+	busy: 'away',
+	eat: 'away',
+	eating: 'away',
 	afk: 'away',
-	away: function(target, room, user, connection) {
+	away: function(target, room, user, connection, cmd) {
 		if (!this.can('lock')) return false;
+		var t = 'Away';
+		switch (cmd) {
+			case 'busy':
+			t = 'Busy';
+			break;
+			case 'sleeping':
+			t = 'Sleeping';
+			break;
+			case 'sleep':
+			t = 'Sleeping';
+			break;
+			case 'working':
+			t = 'Working';
+			break;
+			case 'work':
+			t = 'Working';
+			case 'eat':
+			t = 'Eat';
+			break;
+			case 'eating':
+			t = 'Eating';
+			break;
+			default:
+			t = 'Away'
+			break;
+		}
 
 		if (!user.isAway) {
-			var originalName = user.name;
-			var awayName = user.name + ' - Away';
+			user.originalName = user.name;
+			var awayName = user.name + ' - '+t;
 			//delete the user object with the new name in case it exists - if it does it can cause issues with forceRename
 			delete Users.get(awayName);
 			user.forceRename(awayName, undefined, true);
 
-			this.add('|raw|-- <b><font color="#4F86F7">' + originalName +'</font color></b> is now away. '+ (target ? " (" + target + ")" : ""));
+			if (user.isStaff) this.add('|raw|-- <b><font color="#088cc7">' + user.originalName +'</font color></b> is now '+t.toLowerCase()+'. '+ (target ? " (" + target + ")" : ""));
 
 			user.isAway = true;
 		}
 		else {
-			return this.sendReply('You are already set as away, type /back if you are now back.');
+			return this.sendReply('You are already set as a form of away, type /back if you are now back.');
 		}
 
 		user.updateIdentity();
@@ -3319,10 +3352,12 @@ var commands = exports.commands = {
 		if (!this.can('lock')) return false;
 
 		if (user.isAway) {
+			if (user.name === user.originalName) {
+				user.isAway = false; 
+				return this.sendReply('Your name has been left unaltered and no longer marked as away.');
+			}
 
-			var name = user.name;
-
-			var newName = name.substr(0, name.length - 7);
+			var newName = user.originalName;
 
 			//delete the user object with the new name in case it exists - if it does it can cause issues with forceRename
 			delete Users.get(newName);
@@ -3332,12 +3367,13 @@ var commands = exports.commands = {
 			//user will be authenticated
 			user.authenticated = true;
 
-			this.add('|raw|-- <b><font color="#4F86F7">' + newName + '</font color></b> is no longer away.');
+			if (user.isStaff) this.add('|raw|-- <b><font color="#088cc7">' + newName + '</font color></b> is no longer away.');
 
+			user.originalName = '';
 			user.isAway = false;
 		}
 		else {
-			return this.sendReply('You are not set as away!');
+			return this.sendReply('You are not set as away.');
 		}
 
 		user.updateIdentity();
