@@ -1618,7 +1618,7 @@ var commands = exports.commands = {
 	rkick: 'roomkick',
 	kick: 'roomkick',
 	roomkick: function(target, room, user){
-		if (!room.auth && room.id !== "staff") return this.sendReply('/rkick is designed for rooms with their own auth.');
+		if (!room.auth && room.id !== "lobby") return this.sendReply('/rkick is designed for rooms with their own auth.');
 		if (!this.can('roommod', null, room)) return false;
 		if (!target) return this.sendReply('/rkick [username] - kicks the user from the room. Requires: @ & ~');
 		var targetUser = Users.get(target);
@@ -1697,6 +1697,7 @@ var commands = exports.commands = {
 	roomstaff: 'roomauth',
 	roomauth: function(target, room, user, connection) {
 		if (!room.auth) return this.sendReply("/roomauth - This room isn't designed for per-room moderation and therefore has no auth list.");
+		if (!room.id !== "staff") return this.sendReply("/roomauth - This room supports Drivers and above in /stafflist")
 		var buffer = [];
 		var owners = [];
 		var admins = [];
