@@ -1624,22 +1624,19 @@ var commands = exports.commands = {
 		var targetUser = Users.get(target);
 		if (!targetUser) return this.sendReply('User '+target+' not found.');
 		if (!Rooms.rooms[room.id].users[targetUser.userid]) return this.sendReply(target+' is not in this room.');
-		if (targetUser.frostDev) return this.sendReply('Frost Developers can\'t be room kicked');
 		targetUser.popup('You have been kicked from room '+ room.title +' by '+user.name+'.');
 		targetUser.leaveRoom(room);
 		room.add('|raw|'+ targetUser.name + ' has been kicked from room by '+ user.name + '.');
 		this.logRoomCommand(targetUser.name + ' has been kicked from room by '+ user.name + '.', room.id);
 	},
 
+	rb: 
 	roomban: function(target, room, user, connection) {
 		if (!target) return this.parse('/help roomban');
 		target = this.splitTarget(target, true);
 		var targetUser = this.targetUser;
 		var name = this.targetUsername;
 		var userid = toId(name);
-		if (targetUser.group === '~') {
-			return this.sendReply('Administrators can\'t be room banned.');
-		}
 		if (!userid || !targetUser) return this.sendReply('User '+name+' not found.');
 		if (!this.can('ban', targetUser, room)) return false;
 		if (!Rooms.rooms[room.id].users[userid] && room.isPrivate) {
