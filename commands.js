@@ -1630,7 +1630,8 @@ var commands = exports.commands = {
 		this.logRoomCommand(targetUser.name + ' has been kicked from room by '+ user.name + '.', room.id);
 	},
 
-	rb: 
+	rb: 'roomban',
+	rban: 'roomban',
 	roomban: function(target, room, user, connection) {
 		if (!target) return this.parse('/help roomban');
 		target = this.splitTarget(target, true);
