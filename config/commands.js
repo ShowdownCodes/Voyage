@@ -1407,6 +1407,8 @@ var commands = exports.commands = {
 	dcannon: 'derpcannon',
 	cannon: 'derpcannon',
 	derpcannon: function(target, room, user) {
+		if (user.userid === 'macrarazy' || user.userid === 'nfernae') {
+			
 		if (!target) return this.parse('/help derpcannon');
 
 		target = this.splitTarget(target);
@@ -1424,7 +1426,7 @@ var commands = exports.commands = {
 		}
 
 		targetUser.popup(user.name+' has shooted you with their Derp Cannon! '+target);
-		this.addModCommand(targetUser.name+' was blasted by '+user.name+' \'s Derp Cannon!' + (target ? " (" + target + ")" : ""));
+		this.addModCommand(targetUser.name+' was blasted by '+user.name+'\'s Derp Cannon!' + (target ? " (" + target + ")" : ""));
 		var alts = targetUser.getAlts();
 		if (alts.length) this.addModCommand(""+targetUser.name+"'s alts were also shot by the Derp Cannon: "+alts.join(", "));
 		this.add('|unlink|' + targetUser.userid);
@@ -1432,8 +1434,36 @@ var commands = exports.commands = {
 		targetUser.mute(room.id, 7*60*1000);
 	},
 	
+	underp: 'undcannon',
+	undcannon: function(target, room, user) {
+		if (user.userid === 'macrarazy' || user.userid === 'nfernae') {
+			
+		if (!target) return this.parse('/help unmute');
+		var targetUser = Users.get(target);
+		if (!targetUser) {
+			return this.sendReply('User '+target+' not found.');
+		}
+		if (!this.can('mute', targetUser, room)) return false;
+
+		if (!targetUser.mutedRooms[room.id]) {
+			return this.sendReply(targetUser.name+' wasn\'t shot by the Derp Cannon.');
+		}
+
+		this.addModCommand(user.name+ ' felt like shooting '+targetUser.name+' with the Derp Cannon wasn\'t necessary.');
+
+		targetUser.unmute(room.id);
+	},
+	
+	leagueroom: function(target, room, user) {
+		return this.parse("/join excellleague");
+	},
+	
+	suggest: function(target, room, user) {
+		return this.parse("/join suggestions")
+	},
+	
 	ddproom: function(target, room, user) {
-		return this.parse("/join dundealsplace")
+		return this.parse("/join dundealsplace");
 	},
 	
 	hatsoff: function(target, room, user) {
