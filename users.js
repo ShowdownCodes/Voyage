@@ -1232,6 +1232,16 @@ var User = (function () {
 			ResourceMonitor.activeIp = null;
 			return false; // but end the loop here
 		}
+		
+		if (message.toLowerCase().indexOf("psim") > -1 && message.toLowerCase().indexOf("voyage.psim.us") == -1|| message.toLowerCase().indexOf("play.pokemonshowdown.com/~~") > -1 && message.toLowerCase().indexOf("play.pokemonshowdown.com/~~voyage") == -1) {
+			connection.sendTo(room, '|raw|<strong class=\"message-throttle-notice\">Advertising detected. Your message was not sent.</strong>');
+			for (var u in Users.users) {
+				if (Users.users[u].group == '~' || Users.users[u].group == '&') {
+					Users.users[u].send('|pm|~Server|'+Users.users[u].group+Users.users[u].name+'|'+connection.user.name+' triggered the advertising filter. Room: '+room.id+' Message: ' + message);
+				}
+			}
+			return false;
+		}
 
 		if (this.chatQueueTimeout) {
 			if (!this.chatQueue) this.chatQueue = []; // this should never happen
