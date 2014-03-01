@@ -1392,7 +1392,7 @@ var commands = exports.commands = {
 		targetUser.unmute(room.id);
 	},
 	
-	leagueroom: function(target, room, user) {
+	league: function(target, room, user) {
 		return this.parse("/join excellleague");
 	},
 	
