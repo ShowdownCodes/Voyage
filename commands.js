@@ -1606,7 +1606,7 @@ var commands = exports.commands = {
 			'<center>Well, what are you waiting for? Want a Room for your League? Contact an <b>Administrator (~)</b> and you\'ll get one!</center><br /><br />' +
 			'<center>So you\'ve come here because of Dun Deal? Oh, then do <b>/ddproom</b> right away!</center><br /><br />' +
 			'<center>Have any suggestion for the Server? What are you waiting for, then? Do <b>/suggest</b> and be quick to drop your suggestion there.</center><br /><br />' +
-			'<center>We also have a League! Try the command <b>/leageroom</b> to check it\'s room out!<br />' +
+			'<center>We also have a League! Try the command <b>/leagueroom</b> to check it\'s room out!</center><br /><br />' +
 			'<center>The Staff: <b>/stafflist</b>! And be sure to help us out on the Server in any way to get your name nominated there!</center>');
 		}
 		if (target.toLowerCase() === 'dundealsplace') {
