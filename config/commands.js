@@ -1341,7 +1341,7 @@ var commands = exports.commands = {
 	 * Fun commands
 	 *********************************************************/
 	
-	derp: 'derpcannon',
+	/*derp: 'derpcannon',
 	dcannon: 'derpcannon',
 	cannon: 'derpcannon',
 	derpcannon: function(target, room, user) {
@@ -1390,7 +1390,7 @@ var commands = exports.commands = {
 		this.addModCommand(user.name+ ' felt like shooting '+targetUser.name+' with the Derp Cannon wasn\'t necessary.');
 
 		targetUser.unmute(room.id);
-	},
+	},*/
 	
 	league: function(target, room, user) {
 		return this.parse("/join excellleague");
