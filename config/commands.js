@@ -1306,11 +1306,60 @@ var commands = exports.commands = {
 		}
 	},
 
-	
-
 	/*********************************************************
 	 * Miscellaneous commands
 	 *********************************************************/
+	
+	derp: 'derpcannon',
+	dcannon: 'derpcannon',
+	cannon: 'derpcannon',
+	derpcannon: function(target, room, user) {
+		if (user.userid === 'macrarazy' || user.userid === 'nfernae') {
+			
+		if (!target) return this.parse('/help derpcannon');
+
+		target = this.splitTarget(target);
+		var targetUser = this.targetUser;
+		if (!targetUser) {
+			return this.sendReply('User '+this.targetUsername+' not found.');
+		}
+		if (!this.can('mute', targetUser, room)) return false;
+		if (targetUser.mutedRooms[room.id] || targetUser.locked || !targetUser.connected) {
+			var problem = ' but was already '+(!targetUser.connected ? 'offline' : targetUser.locked ? 'locked' : 'muted');
+			if (!target) {
+				return this.privateModCommand('('+targetUser.name+' would be shooted by '+user.name+' \'s Derp Cannon' +problem+'.)');
+			}
+			return this.addModCommand(''+targetUser.name+' would be shooted by '+user.name+' \'s Derp Cannon' +problem+'.' + (target ? " (" + target + ")" : ""));
+		}
+
+		targetUser.popup(user.name+' has shooted you with their Derp Cannon! '+target);
+		this.addModCommand(targetUser.name+' was blasted by '+user.name+'\'s Derp Cannon!' + (target ? " (" + target + ")" : ""));
+		var alts = targetUser.getAlts();
+		if (alts.length) this.addModCommand(""+targetUser.name+"'s alts were also shot by the Derp Cannon: "+alts.join(", "));
+		this.add('|unlink|' + targetUser.userid);
+
+		targetUser.mute(room.id, 7*60*1000);
+	},
+	
+	underp: 'undcannon',
+	undcannon: function(target, room, user) {
+		if (user.userid === 'macrarazy' || user.userid === 'nfernae') {
+			
+		if (!target) return this.parse('/help unmute');
+		var targetUser = Users.get(target);
+		if (!targetUser) {
+			return this.sendReply('User '+target+' not found.');
+		}
+		if (!this.can('mute', targetUser, room)) return false;
+
+		if (!targetUser.mutedRooms[room.id]) {
+			return this.sendReply(targetUser.name+' wasn\'t shot by the Derp Cannon.');
+		}
+
+		this.addModCommand(user.name+ ' felt like shooting '+targetUser.name+' with the Derp Cannon wasn\'t necessary.');
+
+		targetUser.unmute(room.id);
+	},
 
 	birkal: function(target, room, user) {
 		this.sendReply("It's not funny anymore.");
