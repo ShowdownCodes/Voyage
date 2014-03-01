@@ -1459,7 +1459,7 @@ var commands = exports.commands = {
 	},
 	
 	suggest: function(target, room, user) {
-		return this.parse("/join suggestions")
+		return this.parse("/join suggestions");
 	},
 	
 	ddproom: function(target, room, user) {
