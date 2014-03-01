@@ -300,7 +300,7 @@ exports.tour = function(t) {
 				var tourMoney = 0;
 				var tooSmall = '';
 				var p = 'bucks';
-				if (!Rooms.rooms[rid].auth) {
+				if (Rooms.rooms[rid].isOfficial || Rooms.rooms[rid].id == 'staff') {
 					if (tour[rid].size >= 16) {
 						tourMoney = 3;
 					}
