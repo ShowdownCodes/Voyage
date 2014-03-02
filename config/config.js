@@ -140,7 +140,7 @@ exports.herokuhack = false;
 exports.customavatars = {
 	//'userid': 'customavatar.png'
 	'pancakez': 'cakez.png',
-	'scizornician': 'sciz.png'
+	'scizornician': 'sciz.png',
 };
 
 // appealurl - specify a URL containing information on how users can appeal
